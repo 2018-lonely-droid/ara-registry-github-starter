@@ -1,0 +1,18 @@
+[project]
+name = "ara-ref"
+version = "0.1.0"
+description = "Reference library for ARA package manifests"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = [
+    "pydantic[email]>=2.0",
+    "click>=8.0",
+]
+
+[project.scripts]
+ara-ref = "ara_ref.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

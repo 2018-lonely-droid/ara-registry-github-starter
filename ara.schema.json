@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/aws/ara/refs/heads/main/ara.schema.json",
+  "title": "ara.json defining an ARA package",
+  "description": "Schema for a ARA package manifest. Used for discovery, installation, and configuration of AI development artifacts.",
+  "type": "object",
+  "required": ["name", "version", "description", "author", "tags"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "JSON Schema URI for this ara.json format",
+      "example": "https://raw.githubusercontent.com/aws/ara/refs/heads/main/ara.schema.json"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$",
+      "minLength": 3,
+      "maxLength": 200,
+      "description": "Package name in namespace/package-name format. Must contain exactly one forward slash separating namespace from package name.",
+      "example": "acme/weather-agent"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "Semantic version string (e.g., '1.0.0', '2.1.0-alpha'). Must follow semantic versioning format.",
+      "example": "1.0.0"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Human-readable explanation of package functionality. Should focus on capabilities, not implementation details.",
+      "example": "AI agent for automated code review with support for multiple languages"
+    },
+    "author": {
+      "type": "string",
+      "format": "email",
+      "description": "Author email address for contact and attribution.",
+      "example": "developer@example.com"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      },
+      "minItems": 1,
+      "description": "Discovery tags for search and categorization. Use lowercase, hyphen-separated terms.",
+      "example": ["code-review", "automation", "quality"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["kiro-agent", "mcp-server", "context", "skill", "kiro-powers", "kiro-steering", "agents-md"],
+      "default": "kiro-agent",
+      "description": "Package type determining installation and usage behavior. 'kiro-agent' for Kiro custom agent configurations, 'mcp-server' for MCP servers, 'context' for knowledge and prompt files, 'skill' for procedural knowledge via SKILL.md, 'kiro-powers' for MCP tools with steering files and hooks, 'kiro-steering' for persistent project knowledge, 'agents-md' for AGENTS.md format."
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "File or directory path relative to package root"
+      },
+      "description": "Package files to include. If omitted, all files in the package directory are included."
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "SPDX license identifier (e.g., 'MIT', 'Apache-2.0').",
+      "example": "MIT"
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "description": "Project homepage or documentation URL.",
+      "example": "https://example.com/my-package"
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri",
+      "description": "Source repository URL for browsing and contributing.",
+      "example": "https://github.com/example/my-package"
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Version constraint following semantic versioning (e.g., '^1.0.0', '>=2.0.0')"
+      },
+      "description": "Package dependencies with version constraints. Keys are package names in namespace/package-name format."
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PackageSource"
+      },
+      "description": "Installation sources for MCP server packages. Only valid when type is 'mcp-server'. Clients attempt sources in order, preferring those marked with 'preferred: true'."
+    }
+  },
+  "definitions": {
+    "PackageSource": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["npm", "pypi", "git", "mcp-registry"],
+          "description": "Source type indicating how to install the package"
+        },
+        "package": {
+          "type": "string",
+          "description": "Package identifier in the source registry (npm, pypi, mcp-registry)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Package version. Must be a specific version, not a range."
+        },
+        "registry": {
+          "type": "string",
+          "format": "uri",
+          "description": "Registry URL. Defaults to the public registry for the source type."
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri",
+          "description": "Git repository URL. Required for git source type."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Git ref (tag, branch, or commit hash). Used with git source type."
+        },
+        "subfolder": {
+          "type": "string",
+          "description": "Subfolder within the repository for monorepo structures. Used with git source type."
+        },
+        "installCommand": {
+          "type": "string",
+          "description": "Build command to run after cloning. Used with git source type.",
+          "example": "npm install && npm run build"
+        },
+        "executable": {
+          "type": "string",
+          "description": "Path to executable after build. Used with git source type.",
+          "example": "dist/index.js"
+        },
+        "preferred": {
+          "type": "boolean",
+          "description": "Mark this source as preferred. Clients attempt preferred sources first."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "npm" } }
+          },
+          "then": {
+            "required": ["package"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "pypi" } }
+          },
+          "then": {
+            "required": ["package"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "git" } }
+          },
+          "then": {
+            "required": ["repository"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "mcp-registry" } }
+          },
+          "then": {
+            "required": ["package"]
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "mcp-server" } }
+      },
+      "then": {
+        "properties": {
+          "sources": {
+            "description": "Installation sources for this MCP server"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "sources": {
+            "not": {},
+            "description": "sources field is only allowed for mcp-server type"
+          }
+        }
+      }
+    }
+  ]
+}
