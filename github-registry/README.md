@@ -2,9 +2,39 @@
 
 An open-source ARA (AI Registry for Agents) registry implementation using only GitHub's native components. No external databases, storage services, or servers to deploy.
 
+> **This Registry Instance**: This is the public ARA registry at `2018-lonely-droid/ara-registry-github-starter`. To use this registry, install the CLI and set `GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter`. To deploy your own registry, follow the deployment steps below.
+
 ## Quick Start
 
-### 1. Deploy Your Registry
+### For Users (Using This Registry)
+
+Install the CLI:
+
+```bash
+pip install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+```
+
+Configure environment:
+
+```bash
+export GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter
+export GITHUB_TOKEN=ghp_your_token_here  # Only needed for publishing
+```
+
+Start using:
+
+```bash
+# Search packages
+ara search
+
+# Install a package
+ara install namespace/package-name
+
+# Publish your package (requires token)
+ara publish
+```
+
+### For Administrators (Deploying Your Own Registry)
 
 Clone and push to your GitHub repository:
 
@@ -13,7 +43,7 @@ git clone https://github.com/aws/ara.git
 cd ara
 
 # Push to your new registry repository
-git remote set-url origin https://github.com/YOUR_USERNAME/my-ara-registry.git
+git remote set-url origin https://github.com/your-username/your-registry-name.git
 git push -u origin main
 ```
 
@@ -35,14 +65,7 @@ This triggers the CI workflow which builds the Python wheel and attaches it to t
 Download and install from the GitHub Release:
 
 ```bash
-pip install https://github.com/YOUR_USERNAME/my-ara-registry/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
-```
-
-Or install from source:
-
-```bash
-cd github-registry
-pip install -e .
+pip install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
 ```
 
 ### 4. Configure Environment
@@ -56,14 +79,14 @@ Create a GitHub Personal Access Token:
 Set environment variables:
 
 ```bash
-export GITHUB_REPO=YOUR_USERNAME/my-ara-registry
+export GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter
 export GITHUB_TOKEN=ghp_your_token_here
 ```
 
 Make them permanent by adding to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-echo 'export GITHUB_REPO=YOUR_USERNAME/my-ara-registry' >> ~/.bashrc
+echo 'export GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter' >> ~/.bashrc
 echo 'export GITHUB_TOKEN=ghp_your_token_here' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -439,7 +462,7 @@ The version you're trying to publish already exists.
 The GitHub Actions workflow encountered an error.
 
 **Solutions**:
-1. Check the Actions tab: `https://github.com/YOUR_USERNAME/my-ara-registry/actions`
+1. Check the Actions tab on your registry repository
 2. Click on the failed workflow run
 3. Review the error logs
 4. Common issues:
@@ -458,18 +481,18 @@ The compressed + encoded archive exceeds ~832KB.
 
 ### Wrong CLI Version
 
-**Solution**: Force reinstall:
+**Solution**: Force reinstall from your registry's release URL:
 
 ```bash
-pip install --force-reinstall https://github.com/YOUR_USERNAME/my-ara-registry/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+pip install --force-reinstall https://github.com/your-username/your-registry/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
 ```
 
 ### GITHUB_REPO Not Set
 
-**Solution**: Export the environment variable:
+**Solution**: Export the environment variable with your registry repository:
 
 ```bash
-export GITHUB_REPO=YOUR_USERNAME/my-ara-registry
+export GITHUB_REPO=your-username/your-registry
 ```
 
 ## GitHub Enterprise
@@ -503,11 +526,11 @@ jobs:
       
       - name: Install ARA CLI
         run: |
-          pip install https://github.com/YOUR_USERNAME/my-ara-registry/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+          pip install https://github.com/your-username/your-registry/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
       
       - name: Publish package
         env:
-          GITHUB_REPO: YOUR_USERNAME/my-ara-registry
+          GITHUB_REPO: your-username/your-registry
           GITHUB_TOKEN: ${{ secrets.ARA_REGISTRY_TOKEN }}
         run: ara publish
 ```
