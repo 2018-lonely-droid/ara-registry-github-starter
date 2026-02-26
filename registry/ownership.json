@@ -1,8 +1,10 @@
 {
   "namespaces": {
-    "myname": "2018"
+    "myname": "2018",
+    "lnlydrd": "2018-lonely-droid"
   },
   "packages": {
-    "myname/my-agent": "2018"
+    "myname/my-agent": "2018",
+    "lnlydrd/my-agent": "2018-lonely-droid"
   }
 }
