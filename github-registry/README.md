@@ -14,6 +14,24 @@ Install the CLI:
 pip install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
 ```
 
+If you get a warning that `ara` is not on PATH, add the Python bin directory to your PATH:
+
+```bash
+# For macOS/Linux, add to ~/.bashrc or ~/.zshrc:
+export PATH="$HOME/Library/Python/3.9/bin:$PATH"  # macOS
+# or
+export PATH="$HOME/.local/bin:$PATH"  # Linux
+
+# Then reload your shell:
+source ~/.bashrc  # or source ~/.zshrc
+```
+
+Verify installation:
+
+```bash
+ara --help
+```
+
 Configure environment:
 
 ```bash
