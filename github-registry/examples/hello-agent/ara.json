@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/aws/ara/refs/heads/main/ara.schema.json",
+  "name": "test/hello-agent",
+  "version": "0.1.0",
+  "description": "Test agent to verify the ARA registry works",
+  "author": "test@example.com",
+  "tags": ["test", "hello"],
+  "type": "kiro-agent",
+  "files": ["prompts/system.md"]
+}

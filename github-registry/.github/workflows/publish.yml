@@ -1,0 +1,472 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch_id:
+        description: 'Unique dispatch ID for run matching'
+        required: true
+      action:
+        description: 'Action to perform (publish/unpublish/delete)'
+        required: false
+        default: 'publish'
+      namespace:
+        description: 'Package namespace'
+        required: true
+      name:
+        description: 'Package name'
+        required: true
+      version:
+        description: 'Package version'
+        required: false
+      manifest_json:
+        description: 'Full ara.json as JSON string'
+        required: false
+      username:
+        description: 'Publishing user GitHub username'
+        required: true
+      chunk_count:
+        description: 'Number of payload chunks'
+        required: false
+        default: '0'
+      payload:
+        description: 'Base85-encoded package (single chunk)'
+        required: false
+      payload_1:
+        description: 'Payload chunk 1'
+        required: false
+      payload_2:
+        description: 'Payload chunk 2'
+        required: false
+      payload_3:
+        description: 'Payload chunk 3'
+        required: false
+      payload_4:
+        description: 'Payload chunk 4'
+        required: false
+      payload_5:
+        description: 'Payload chunk 5'
+        required: false
+      payload_6:
+        description: 'Payload chunk 6'
+        required: false
+      payload_7:
+        description: 'Payload chunk 7'
+        required: false
+      payload_8:
+        description: 'Payload chunk 8'
+        required: false
+      payload_9:
+        description: 'Payload chunk 9'
+        required: false
+      payload_10:
+        description: 'Payload chunk 10'
+        required: false
+      payload_11:
+        description: 'Payload chunk 11'
+        required: false
+      payload_12:
+        description: 'Payload chunk 12'
+        required: false
+      payload_13:
+        description: 'Payload chunk 13'
+        required: false
+      payload_14:
+        description: 'Payload chunk 14'
+        required: false
+      payload_15:
+        description: 'Payload chunk 15'
+        required: false
+      payload_16:
+        description: 'Payload chunk 16'
+        required: false
+      payload_17:
+        description: 'Payload chunk 17'
+        required: false
+      payload_18:
+        description: 'Payload chunk 18'
+        required: false
+      payload_19:
+        description: 'Payload chunk 19'
+        required: false
+      payload_20:
+        description: 'Payload chunk 20'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          pip install httpx zstandard
+      
+      - name: Process action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_PAYLOAD: ${{ github.event.inputs.payload }}
+          INPUT_PAYLOAD_1: ${{ github.event.inputs.payload_1 }}
+          INPUT_PAYLOAD_2: ${{ github.event.inputs.payload_2 }}
+          INPUT_PAYLOAD_3: ${{ github.event.inputs.payload_3 }}
+          INPUT_PAYLOAD_4: ${{ github.event.inputs.payload_4 }}
+          INPUT_PAYLOAD_5: ${{ github.event.inputs.payload_5 }}
+          INPUT_PAYLOAD_6: ${{ github.event.inputs.payload_6 }}
+          INPUT_PAYLOAD_7: ${{ github.event.inputs.payload_7 }}
+          INPUT_PAYLOAD_8: ${{ github.event.inputs.payload_8 }}
+          INPUT_PAYLOAD_9: ${{ github.event.inputs.payload_9 }}
+          INPUT_PAYLOAD_10: ${{ github.event.inputs.payload_10 }}
+          INPUT_PAYLOAD_11: ${{ github.event.inputs.payload_11 }}
+          INPUT_PAYLOAD_12: ${{ github.event.inputs.payload_12 }}
+          INPUT_PAYLOAD_13: ${{ github.event.inputs.payload_13 }}
+          INPUT_PAYLOAD_14: ${{ github.event.inputs.payload_14 }}
+          INPUT_PAYLOAD_15: ${{ github.event.inputs.payload_15 }}
+          INPUT_PAYLOAD_16: ${{ github.event.inputs.payload_16 }}
+          INPUT_PAYLOAD_17: ${{ github.event.inputs.payload_17 }}
+          INPUT_PAYLOAD_18: ${{ github.event.inputs.payload_18 }}
+          INPUT_PAYLOAD_19: ${{ github.event.inputs.payload_19 }}
+          INPUT_PAYLOAD_20: ${{ github.event.inputs.payload_20 }}
+        run: |
+          python - <<'PYTHON_SCRIPT'
+          import base64
+          import json
+          import os
+          import sys
+          import tarfile
+          import tempfile
+          from datetime import datetime, timezone
+          from pathlib import Path
+          
+          import httpx
+          import zstandard as zstd
+          
+          # Get inputs
+          action = "${{ github.event.inputs.action }}"
+          namespace = "${{ github.event.inputs.namespace }}"
+          name = "${{ github.event.inputs.name }}"
+          version = "${{ github.event.inputs.version }}"
+          username = "${{ github.event.inputs.username }}"
+          chunk_count = int("${{ github.event.inputs.chunk_count }}" or "0")
+          
+          # GitHub API setup
+          repo = os.environ["GITHUB_REPOSITORY"]
+          token = os.environ["GITHUB_TOKEN"]
+          api_base = f"https://api.github.com/repos/{repo}"
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github+json",
+          }
+          
+          def get_file_sha(path):
+              """Get the SHA of a file in the repo."""
+              url = f"{api_base}/contents/{path}"
+              resp = httpx.get(url, headers=headers)
+              if resp.status_code == 404:
+                  return None
+              resp.raise_for_status()
+              return resp.json()["sha"]
+          
+          def update_file(path, content, message):
+              """Update a file in the repo."""
+              url = f"{api_base}/contents/{path}"
+              sha = get_file_sha(path)
+              
+              data = {
+                  "message": message,
+                  "content": base64.b64encode(content.encode()).decode(),
+              }
+              if sha:
+                  data["sha"] = sha
+              
+              resp = httpx.put(url, headers=headers, json=data)
+              resp.raise_for_status()
+          
+          def load_index():
+              """Load the registry index."""
+              sha = get_file_sha("registry/index.json")
+              if not sha:
+                  return []
+              
+              url = f"{api_base}/contents/registry/index.json"
+              resp = httpx.get(url, headers=headers)
+              resp.raise_for_status()
+              content = base64.b64decode(resp.json()["content"]).decode()
+              return json.loads(content)
+          
+          def save_index(index, message):
+              """Save the registry index."""
+              content = json.dumps(index, indent=2)
+              update_file("registry/index.json", content, message)
+          
+          def load_ownership():
+              """Load ownership data."""
+              sha = get_file_sha("registry/ownership.json")
+              if not sha:
+                  return {"namespaces": {}, "packages": {}}
+              
+              url = f"{api_base}/contents/registry/ownership.json"
+              resp = httpx.get(url, headers=headers)
+              resp.raise_for_status()
+              content = base64.b64decode(resp.json()["content"]).decode()
+              return json.loads(content)
+          
+          def save_ownership(data, message):
+              """Save ownership data."""
+              content = json.dumps(data, indent=2)
+              update_file("registry/ownership.json", content, message)
+          
+          def check_ownership(namespace, name, username):
+              """Check if user owns the namespace/package."""
+              ownership = load_ownership()
+              
+              # Check namespace
+              ns_owner = ownership.get("namespaces", {}).get(namespace)
+              if ns_owner and ns_owner != username:
+                  print(f"Error: Namespace '{namespace}' is owned by {ns_owner}")
+                  sys.exit(1)
+              
+              # Check package
+              pkg_key = f"{namespace}/{name}"
+              pkg_owner = ownership.get("packages", {}).get(pkg_key)
+              if pkg_owner and pkg_owner != username:
+                  print(f"Error: Package '{pkg_key}' is owned by {pkg_owner}")
+                  sys.exit(1)
+          
+          def set_ownership(namespace, name, username):
+              """Set ownership for namespace and package."""
+              ownership = load_ownership()
+              
+              if namespace not in ownership.get("namespaces", {}):
+                  ownership.setdefault("namespaces", {})[namespace] = username
+              
+              pkg_key = f"{namespace}/{name}"
+              if pkg_key not in ownership.get("packages", {}):
+                  ownership.setdefault("packages", {})[pkg_key] = username
+              
+              save_ownership(ownership, f"Set ownership for {pkg_key}")
+          
+          # Execute action
+          if action == "publish":
+              print(f"Publishing {namespace}/{name}@{version}")
+              
+              # Check ownership
+              check_ownership(namespace, name, username)
+              
+              # Reassemble payload
+              if chunk_count == 1:
+                  payload = os.environ.get("INPUT_PAYLOAD", "")
+              else:
+                  chunks = []
+                  for i in range(1, chunk_count + 1):
+                      chunk = os.environ.get(f"INPUT_PAYLOAD_{i}", "")
+                      if chunk:
+                          chunks.append(chunk)
+                  payload = "".join(chunks)
+              
+              # Decode payload
+              archive_data = base64.b85decode(payload.encode())
+              
+              # Write to temp file
+              with tempfile.NamedTemporaryFile(suffix=".tar.zst", delete=False) as f:
+                  f.write(archive_data)
+                  archive_path = f.name
+              
+              try:
+                  # Decompress and extract to verify
+                  dctx = zstd.ZstdDecompressor()
+                  with open(archive_path, "rb") as f:
+                      tar_data = dctx.decompress(f.read())
+                  
+                  # Parse manifest
+                  manifest = json.loads("${{ github.event.inputs.manifest_json }}")
+                  
+                  # Create release
+                  tag = f"ara/{namespace}/{name}/v{version}"
+                  release_data = {
+                      "tag_name": tag,
+                      "name": f"{namespace}/{name} v{version}",
+                      "body": manifest.get("description", ""),
+                  }
+                  
+                  url = f"{api_base}/releases"
+                  resp = httpx.post(url, headers=headers, json=release_data)
+                  resp.raise_for_status()
+                  release = resp.json()
+                  release_id = release["id"]
+                  
+                  # Upload assets
+                  upload_url = release["upload_url"].split("{")[0]  # Remove template
+                  
+                  # Upload package archive
+                  with open(archive_path, "rb") as f:
+                      resp = httpx.post(
+                          f"{upload_url}?name=package.tar.zst",
+                          headers={
+                              "Authorization": f"token {token}",
+                              "Content-Type": "application/octet-stream",
+                          },
+                          content=f.read(),
+                          timeout=120.0,
+                      )
+                      resp.raise_for_status()
+                  
+                  # Upload manifest
+                  manifest_json = json.dumps(manifest, indent=2)
+                  resp = httpx.post(
+                      f"{upload_url}?name=ara.json",
+                      headers={
+                          "Authorization": f"token {token}",
+                          "Content-Type": "application/json",
+                      },
+                      content=manifest_json.encode(),
+                  )
+                  resp.raise_for_status()
+                  
+                  # Update index
+                  index = load_index()
+                  now = datetime.now(timezone.utc).isoformat()
+                  
+                  # Find or create package entry
+                  pkg_entry = None
+                  for p in index:
+                      if p["namespace"] == namespace and p["name"] == name:
+                          pkg_entry = p
+                          break
+                  
+                  if pkg_entry:
+                      # Update existing
+                      if version not in pkg_entry["versions"]:
+                          pkg_entry["versions"].insert(0, version)
+                      pkg_entry["latest_version"] = version
+                      pkg_entry["updated_at"] = now
+                  else:
+                      # Create new
+                      pkg_entry = {
+                          "namespace": namespace,
+                          "name": name,
+                          "description": manifest.get("description", ""),
+                          "type": manifest.get("type", "kiro-agent"),
+                          "latest_version": version,
+                          "versions": [version],
+                          "tags": manifest.get("tags", []),
+                          "total_downloads": 0,
+                          "created_at": now,
+                          "updated_at": now,
+                      }
+                      index.append(pkg_entry)
+                  
+                  save_index(index, f"Add {namespace}/{name}@{version}")
+                  
+                  # Set ownership
+                  set_ownership(namespace, name, username)
+                  
+                  print(f"Successfully published {namespace}/{name}@{version}")
+              
+              finally:
+                  Path(archive_path).unlink(missing_ok=True)
+          
+          elif action == "unpublish":
+              print(f"Unpublishing {namespace}/{name}@{version}")
+              
+              # Check ownership
+              check_ownership(namespace, name, username)
+              
+              # Delete release
+              tag = f"ara/{namespace}/{name}/v{version}"
+              
+              # Get release by tag
+              url = f"{api_base}/releases/tags/{tag}"
+              resp = httpx.get(url, headers=headers)
+              if resp.status_code == 404:
+                  print(f"Release not found: {tag}")
+                  sys.exit(1)
+              resp.raise_for_status()
+              release_id = resp.json()["id"]
+              
+              # Delete release
+              url = f"{api_base}/releases/{release_id}"
+              resp = httpx.delete(url, headers=headers)
+              resp.raise_for_status()
+              
+              # Delete tag
+              url = f"{api_base}/git/refs/tags/{tag}"
+              resp = httpx.delete(url, headers=headers)
+              # Ignore 404 if tag doesn't exist
+              if resp.status_code != 404:
+                  resp.raise_for_status()
+              
+              # Update index
+              index = load_index()
+              for pkg in index:
+                  if pkg["namespace"] == namespace and pkg["name"] == name:
+                      if version in pkg["versions"]:
+                          pkg["versions"].remove(version)
+                      
+                      if not pkg["versions"]:
+                          # Remove package if no versions left
+                          index.remove(pkg)
+                      elif pkg["latest_version"] == version:
+                          # Update latest version
+                          pkg["latest_version"] = pkg["versions"][0]
+                      
+                      break
+              
+              save_index(index, f"Remove {namespace}/{name}@{version}")
+              print(f"Successfully unpublished {namespace}/{name}@{version}")
+          
+          elif action == "delete":
+              print(f"Deleting {namespace}/{name}")
+              
+              # Check ownership
+              check_ownership(namespace, name, username)
+              
+              # Find all releases for this package
+              url = f"{api_base}/releases"
+              resp = httpx.get(url, headers=headers)
+              resp.raise_for_status()
+              releases = resp.json()
+              
+              prefix = f"ara/{namespace}/{name}/"
+              for release in releases:
+                  tag = release["tag_name"]
+                  if tag.startswith(prefix):
+                      # Delete release
+                      release_id = release["id"]
+                      url = f"{api_base}/releases/{release_id}"
+                      resp = httpx.delete(url, headers=headers)
+                      resp.raise_for_status()
+                      
+                      # Delete tag
+                      url = f"{api_base}/git/refs/tags/{tag}"
+                      resp = httpx.delete(url, headers=headers)
+                      # Ignore 404
+                      if resp.status_code != 404:
+                          resp.raise_for_status()
+              
+              # Update index
+              index = load_index()
+              index = [p for p in index if not (p["namespace"] == namespace and p["name"] == name)]
+              save_index(index, f"Delete {namespace}/{name}")
+              
+              # Update ownership
+              ownership = load_ownership()
+              pkg_key = f"{namespace}/{name}"
+              if pkg_key in ownership.get("packages", {}):
+                  del ownership["packages"][pkg_key]
+              save_ownership(ownership, f"Remove ownership for {pkg_key}")
+              
+              print(f"Successfully deleted {namespace}/{name}")
+          
+          else:
+              print(f"Unknown action: {action}")
+              sys.exit(1)
+          
+          PYTHON_SCRIPT
