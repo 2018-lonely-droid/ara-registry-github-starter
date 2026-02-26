@@ -140,6 +140,9 @@ jobs:
                   
                   url = f"{api_base}/releases"
                   resp = httpx.post(url, headers=headers, json=release_data)
+                  if resp.status_code == 422:
+                      error_detail = resp.json()
+                      raise ValueError(f"Failed to create release: {error_detail.get('message', 'Unknown error')}. This usually means the version already exists.")
                   resp.raise_for_status()
                   release = resp.json()
                   release_id = release["id"]
