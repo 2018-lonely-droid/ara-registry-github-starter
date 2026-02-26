@@ -11,7 +11,10 @@ An open-source ARA (AI Registry for Agents) registry implementation using only G
 Install the CLI:
 
 ```bash
-# Recommended: Using pipx (cleanest approach)
+# Recommended: Using uv (fastest)
+uv tool install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+
+# Alternative: Using pipx
 brew install pipx
 pipx install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
 
@@ -22,7 +25,10 @@ pip install --user https://github.com/2018-lonely-droid/ara-registry-github-star
 If you get a warning that `ara` is not on PATH:
 
 ```bash
-# For pipx (usually automatic):
+# For uv (usually automatic):
+# uv automatically adds ~/.local/bin to PATH
+
+# For pipx:
 pipx ensurepath
 
 # For pip --user on macOS:
