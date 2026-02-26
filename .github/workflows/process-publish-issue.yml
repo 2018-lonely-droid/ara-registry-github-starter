@@ -1,0 +1,240 @@
+name: Process Publish Issue
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  process:
+    if: contains(github.event.issue.labels.*.name, 'ara-publish') && startsWith(github.event.issue.title, '[PUBLISH]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install dependencies
+        run: |
+          pip install httpx zstandard
+      
+      - name: Process publication
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python - <<'PYTHON_SCRIPT'
+          import base64
+          import json
+          import os
+          import re
+          import sys
+          import tarfile
+          import tempfile
+          from datetime import datetime, timezone
+          from pathlib import Path
+          
+          import httpx
+          import zstandard as zstd
+          
+          # Get issue data
+          issue_number = os.environ["ISSUE_NUMBER"]
+          issue_body = os.environ["ISSUE_BODY"]
+          
+          # GitHub API setup
+          repo = os.environ["GITHUB_REPOSITORY"]
+          token = os.environ["GITHUB_TOKEN"]
+          api_base = f"https://api.github.com/repos/{repo}"
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github+json",
+          }
+          
+          def comment_on_issue(message):
+              """Post a comment on the issue."""
+              url = f"{api_base}/issues/{issue_number}/comments"
+              httpx.post(url, headers=headers, json={"body": message})
+          
+          def close_issue():
+              """Close the issue."""
+              url = f"{api_base}/issues/{issue_number}"
+              httpx.patch(url, headers=headers, json={"state": "closed"})
+          
+          def get_file_sha(path):
+              """Get the SHA of a file in the repo."""
+              url = f"{api_base}/contents/{path}"
+              resp = httpx.get(url, headers=headers)
+              if resp.status_code == 404:
+                  return None
+              resp.raise_for_status()
+              return resp.json()["sha"]
+          
+          def update_file(path, content, message):
+              """Update a file in the repo."""
+              url = f"{api_base}/contents/{path}"
+              sha = get_file_sha(path)
+              
+              data = {
+                  "message": message,
+                  "content": base64.b64encode(content.encode()).decode(),
+              }
+              if sha:
+                  data["sha"] = sha
+              
+              resp = httpx.put(url, headers=headers, json=data)
+              resp.raise_for_status()
+          
+          try:
+              # Parse issue body
+              manifest_match = re.search(r'### Manifest\n```json\n(.*?)\n```', issue_body, re.DOTALL)
+              package_match = re.search(r'### Package Data\n```\n(.*?)\n```', issue_body, re.DOTALL)
+              publisher_match = re.search(r'\*\*Publisher\*\*: @(\w+)', issue_body)
+              
+              if not all([manifest_match, package_match, publisher_match]):
+                  raise ValueError("Invalid issue format")
+              
+              manifest = json.loads(manifest_match.group(1))
+              encoded_package = package_match.group(1).strip()
+              username = publisher_match.group(1)
+              
+              namespace = manifest["name"].split("/")[0]
+              name = manifest["name"].split("/")[1]
+              version = manifest["version"]
+              
+              comment_on_issue(f"🔄 Processing publication of `{namespace}/{name}@{version}`...")
+              
+              # Decode package
+              archive_data = base64.b85decode(encoded_package.encode())
+              
+              # Write to temp file
+              with tempfile.NamedTemporaryFile(suffix=".tar.zst", delete=False) as f:
+                  f.write(archive_data)
+                  archive_path = f.name
+              
+              try:
+                  # Decompress
+                  dctx = zstd.ZstdDecompressor()
+                  with open(archive_path, "rb") as f:
+                      tar_data = dctx.decompress(f.read())
+                  
+                  # Create release
+                  tag = f"ara/{namespace}/{name}/v{version}"
+                  release_data = {
+                      "tag_name": tag,
+                      "name": f"{namespace}/{name} v{version}",
+                      "body": manifest.get("description", ""),
+                  }
+                  
+                  url = f"{api_base}/releases"
+                  resp = httpx.post(url, headers=headers, json=release_data)
+                  resp.raise_for_status()
+                  release = resp.json()
+                  release_id = release["id"]
+                  
+                  # Upload assets
+                  upload_url = release["upload_url"].split("{")[0]
+                  
+                  # Upload package archive
+                  with open(archive_path, "rb") as f:
+                      resp = httpx.post(
+                          f"{upload_url}?name=package.tar.zst",
+                          headers={
+                              "Authorization": f"token {token}",
+                              "Content-Type": "application/octet-stream",
+                          },
+                          content=f.read(),
+                          timeout=120.0,
+                      )
+                      resp.raise_for_status()
+                  
+                  # Upload manifest
+                  manifest_json = json.dumps(manifest, indent=2)
+                  resp = httpx.post(
+                      f"{upload_url}?name=ara.json",
+                      headers={
+                          "Authorization": f"token {token}",
+                          "Content-Type": "application/json",
+                      },
+                      content=manifest_json.encode(),
+                  )
+                  resp.raise_for_status()
+                  
+                  # Update index
+                  index_url = f"{api_base}/contents/registry/index.json"
+                  resp = httpx.get(index_url, headers=headers)
+                  if resp.status_code == 404:
+                      index = []
+                  else:
+                      resp.raise_for_status()
+                      content = base64.b64decode(resp.json()["content"]).decode()
+                      index = json.loads(content)
+                  
+                  now = datetime.now(timezone.utc).isoformat()
+                  
+                  # Find or create package entry
+                  pkg_entry = None
+                  for p in index:
+                      if p["namespace"] == namespace and p["name"] == name:
+                          pkg_entry = p
+                          break
+                  
+                  if pkg_entry:
+                      if version not in pkg_entry["versions"]:
+                          pkg_entry["versions"].insert(0, version)
+                      pkg_entry["latest_version"] = version
+                      pkg_entry["updated_at"] = now
+                  else:
+                      pkg_entry = {
+                          "namespace": namespace,
+                          "name": name,
+                          "description": manifest.get("description", ""),
+                          "type": manifest.get("type", "kiro-agent"),
+                          "latest_version": version,
+                          "versions": [version],
+                          "tags": manifest.get("tags", []),
+                          "total_downloads": 0,
+                          "created_at": now,
+                          "updated_at": now,
+                      }
+                      index.append(pkg_entry)
+                  
+                  content = json.dumps(index, indent=2)
+                  update_file("registry/index.json", content, f"Add {namespace}/{name}@{version}")
+                  
+                  # Update ownership
+                  ownership_url = f"{api_base}/contents/registry/ownership.json"
+                  resp = httpx.get(ownership_url, headers=headers)
+                  if resp.status_code == 404:
+                      ownership = {"namespaces": {}, "packages": {}}
+                  else:
+                      resp.raise_for_status()
+                      content = base64.b64decode(resp.json()["content"]).decode()
+                      ownership = json.loads(content)
+                  
+                  if namespace not in ownership.get("namespaces", {}):
+                      ownership.setdefault("namespaces", {})[namespace] = username
+                  
+                  pkg_key = f"{namespace}/{name}"
+                  if pkg_key not in ownership.get("packages", {}):
+                      ownership.setdefault("packages", {})[pkg_key] = username
+                  
+                  content = json.dumps(ownership, indent=2)
+                  update_file("registry/ownership.json", content, f"Set ownership for {pkg_key}")
+                  
+                  comment_on_issue(f"✅ Published successfully: `{namespace}/{name}@{version}`\n\nRelease: {release['html_url']}")
+                  close_issue()
+              
+              finally:
+                  Path(archive_path).unlink(missing_ok=True)
+          
+          except Exception as e:
+              comment_on_issue(f"❌ Publication failed: {str(e)}")
+              sys.exit(1)
+          
+          PYTHON_SCRIPT

@@ -142,46 +142,76 @@ def publish(
     username: str,
 ) -> dict:
     """
-    Publish a package by triggering the publish workflow.
+    Publish a package by creating a GitHub issue.
     
-    The archive is base85-encoded and sent as workflow input(s).
+    The issue will be processed by a GitHub Actions workflow.
     """
     # Read and encode the archive
     archive_data = archive_path.read_bytes()
     encoded = base64.b85encode(archive_data).decode("ascii")
     
-    # Build workflow inputs
-    inputs = {
-        "namespace": namespace,
-        "name": name,
-        "version": version,
-        "manifest_json": json.dumps(manifest),
-        "username": username,
-    }
+    # Create issue body with package data
+    issue_title = f"[PUBLISH] {namespace}/{name}@{version}"
+    issue_body = f"""## Package Publication Request
+
+**Package**: `{namespace}/{name}`
+**Version**: `{version}`
+**Publisher**: @{username}
+
+### Manifest
+```json
+{json.dumps(manifest, indent=2)}
+```
+
+### Package Data
+```
+{encoded}
+```
+
+---
+*This issue was created automatically by the ARA CLI. It will be processed by GitHub Actions.*
+"""
     
-    # Split into chunks if needed
-    if len(encoded) <= MAX_CHUNK_SIZE:
-        inputs["chunk_count"] = "1"
-        inputs["payload"] = encoded
-    else:
-        # Split into chunks
-        chunks = []
-        for i in range(0, len(encoded), MAX_CHUNK_SIZE):
-            chunks.append(encoded[i:i + MAX_CHUNK_SIZE])
-        
-        if len(chunks) > MAX_CHUNKS:
-            raise ValueError(
-                f"Package too large: {len(encoded)} bytes encoded "
-                f"requires {len(chunks)} chunks (max {MAX_CHUNKS})"
-            )
-        
-        inputs["chunk_count"] = str(len(chunks))
-        for i, chunk in enumerate(chunks, 1):
-            inputs[f"payload_{i}"] = chunk
+    # Create the issue
+    url = f"{http.api_base()}/issues"
+    with http.get_client() as client:
+        response = client.post(
+            url,
+            json={
+                "title": issue_title,
+                "body": issue_body,
+                "labels": ["ara-publish"],
+            },
+        )
+        response.raise_for_status()
+        issue = response.json()
     
-    # Trigger workflow
-    result = _trigger_workflow(PUBLISH_WORKFLOW, inputs)
-    return result
+    issue_number = issue["number"]
+    issue_url = issue["html_url"]
+    
+    print(f"Created issue #{issue_number}: {issue_url}")
+    print("Waiting for workflow to process...")
+    
+    # Poll the issue for completion
+    for _ in range(60):  # Poll for up to 2 minutes
+        time.sleep(2)
+        
+        with http.get_client() as client:
+            # Check issue comments for status
+            comments_url = f"{http.api_base()}/issues/{issue_number}/comments"
+            response = client.get(comments_url)
+            response.raise_for_status()
+            comments = response.json()
+            
+            for comment in comments:
+                body = comment.get("body", "")
+                if "✅ Published successfully" in body:
+                    print(f"Published {namespace}/{name}@{version}")
+                    return {"status": "success", "issue": issue_number}
+                elif "❌ Publication failed" in body:
+                    raise RuntimeError(f"Publication failed. See issue #{issue_number} for details: {issue_url}")
+    
+    raise TimeoutError(f"Publication timed out. Check issue #{issue_number} for status: {issue_url}")
 
 
 def download_manifest(namespace: str, name: str, version: str) -> dict:
@@ -248,23 +278,57 @@ def download_archive(namespace: str, name: str, version: str, dest: Path) -> str
 
 
 def unpublish(namespace: str, name: str, version: str, username: str) -> None:
-    """Unpublish a package version by triggering the workflow."""
-    inputs = {
-        "action": "unpublish",
-        "namespace": namespace,
-        "name": name,
-        "version": version,
-        "username": username,
-    }
-    _trigger_workflow(PUBLISH_WORKFLOW, inputs)
+    """Unpublish a package version by creating a GitHub issue."""
+    issue_title = f"[UNPUBLISH] {namespace}/{name}@{version}"
+    issue_body = f"""## Package Unpublish Request
+
+**Package**: `{namespace}/{name}`
+**Version**: `{version}`
+**Requester**: @{username}
+
+---
+*This issue was created automatically by the ARA CLI.*
+"""
+    
+    url = f"{http.api_base()}/issues"
+    with http.get_client() as client:
+        response = client.post(
+            url,
+            json={
+                "title": issue_title,
+                "body": issue_body,
+                "labels": ["ara-unpublish"],
+            },
+        )
+        response.raise_for_status()
+        issue = response.json()
+    
+    print(f"Created unpublish request: {issue['html_url']}")
 
 
 def delete_all(namespace: str, name: str, username: str) -> None:
-    """Delete all versions of a package by triggering the workflow."""
-    inputs = {
-        "action": "delete",
-        "namespace": namespace,
-        "name": name,
-        "username": username,
-    }
-    _trigger_workflow(PUBLISH_WORKFLOW, inputs)
+    """Delete all versions of a package by creating a GitHub issue."""
+    issue_title = f"[DELETE] {namespace}/{name}"
+    issue_body = f"""## Package Delete Request
+
+**Package**: `{namespace}/{name}`
+**Requester**: @{username}
+
+---
+*This issue was created automatically by the ARA CLI.*
+"""
+    
+    url = f"{http.api_base()}/issues"
+    with http.get_client() as client:
+        response = client.post(
+            url,
+            json={
+                "title": issue_title,
+                "body": issue_body,
+                "labels": ["ara-delete"],
+            },
+        )
+        response.raise_for_status()
+        issue = response.json()
+    
+    print(f"Created delete request: {issue['html_url']}")
