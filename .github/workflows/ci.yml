@@ -38,6 +38,7 @@ jobs:
           python-version: '3.12'
       - run: pip install build
       - run: python -m build
+        working-directory: github-registry
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: github-registry/dist/*
