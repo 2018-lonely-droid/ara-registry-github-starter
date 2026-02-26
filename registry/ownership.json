@@ -1,1 +1,8 @@
-{"namespaces": {}, "packages": {}}
+{
+  "namespaces": {
+    "myname": "2018"
+  },
+  "packages": {
+    "myname/my-agent": "2018"
+  }
+}
