@@ -175,15 +175,25 @@ def publish(
     # Create the issue
     url = f"{http.api_base()}/issues"
     with http.get_client() as client:
-        response = client.post(
-            url,
-            json={
-                "title": issue_title,
-                "body": issue_body,
-                "labels": ["ara-publish"],
-            },
-        )
-        response.raise_for_status()
+        try:
+            response = client.post(
+                url,
+                json={
+                    "title": issue_title,
+                    "body": issue_body,
+                    "labels": ["ara-publish"],
+                },
+            )
+            response.raise_for_status()
+        except Exception as e:
+            if "403" in str(e):
+                raise RuntimeError(
+                    "Permission denied. Your GitHub token needs 'Issues: Read and write' permission.\n"
+                    "For fine-grained tokens: Add 'Issues: Read and write' to the repository.\n"
+                    "For classic tokens: Use 'public_repo' or 'repo' scope.\n"
+                    f"Original error: {e}"
+                )
+            raise
         issue = response.json()
     
     issue_number = issue["number"]
