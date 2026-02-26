@@ -202,7 +202,7 @@ See [TESTING.md](TESTING.md) for detailed procedures.
 
 ### Large Package Failures
 
-**Symptom**: Publishing fails for packages >1MB
+**Symptom**: Publishing fails for packages >832KB
 
 **Solutions**:
 - Reduce package size using `files` field

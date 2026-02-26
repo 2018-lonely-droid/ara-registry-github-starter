@@ -287,7 +287,7 @@ Check the Actions tab on the registry repository for error details. Common issue
 
 ### Package Too Large
 
-The compressed + encoded archive exceeds ~1.04MB across 20 chunks. Solutions:
+The compressed + encoded archive exceeds ~832KB across 16 chunks. Solutions:
 
 - Use the `files` field in `ara.json` to exclude unnecessary files
 - For MCP servers, use the `sources` field to reference npm/PyPI instead of bundling files
@@ -308,7 +308,7 @@ pip install --force-reinstall ara-github
 - **Zstandard**: Better compression ratio than gzip for text-heavy packages (typical for AI artifacts)
 - **Base85**: 25% overhead vs base64's 33%, maximizing usable payload per workflow input
 
-Combined, these allow ~52KB of binary data per 65KB workflow input, supporting packages up to ~1MB.
+Combined, these allow ~52KB of binary data per 65KB workflow input, supporting packages up to ~832KB (16 chunks due to GitHub's 25 input limit).
 
 ### Why workflow_dispatch?
 

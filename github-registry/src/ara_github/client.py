@@ -14,7 +14,7 @@ from . import http
 # Constants
 PUBLISH_WORKFLOW = "publish.yml"
 MAX_CHUNK_SIZE = 65000  # Conservative limit for workflow_dispatch input
-MAX_CHUNKS = 20
+MAX_CHUNKS = 16  # GitHub allows 25 inputs total, we use 9 for metadata
 
 
 def _release_tag(namespace: str, name: str, version: str) -> str:

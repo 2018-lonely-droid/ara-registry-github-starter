@@ -80,18 +80,7 @@ on:
       payload_16:
         description: 'Payload chunk 16'
         required: false
-      payload_17:
-        description: 'Payload chunk 17'
-        required: false
-      payload_18:
-        description: 'Payload chunk 18'
-        required: false
-      payload_19:
-        description: 'Payload chunk 19'
-        required: false
-      payload_20:
-        description: 'Payload chunk 20'
-        required: false
+
 
 permissions:
   contents: write
@@ -130,10 +119,6 @@ jobs:
           INPUT_PAYLOAD_14: ${{ github.event.inputs.payload_14 }}
           INPUT_PAYLOAD_15: ${{ github.event.inputs.payload_15 }}
           INPUT_PAYLOAD_16: ${{ github.event.inputs.payload_16 }}
-          INPUT_PAYLOAD_17: ${{ github.event.inputs.payload_17 }}
-          INPUT_PAYLOAD_18: ${{ github.event.inputs.payload_18 }}
-          INPUT_PAYLOAD_19: ${{ github.event.inputs.payload_19 }}
-          INPUT_PAYLOAD_20: ${{ github.event.inputs.payload_20 }}
         run: |
           python - <<'PYTHON_SCRIPT'
           import base64

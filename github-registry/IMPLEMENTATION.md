@@ -80,7 +80,7 @@ Write operations (publish, unpublish, delete) trigger GitHub Actions workflows v
 
 - **Zstandard compression**: Better ratio than gzip for text-heavy packages
 - **Base85 encoding**: 25% overhead vs base64's 33%
-- **Chunking**: Supports packages up to ~1MB via 20 payload chunks
+- **Chunking**: Supports packages up to ~832KB via 16 payload chunks (GitHub's 25 input limit)
 
 ### Security
 
@@ -153,7 +153,7 @@ Development:
 
 ### Package Size
 
-Maximum ~1MB compressed + encoded (across 20 chunks). For larger packages:
+Maximum ~832KB compressed + encoded (across 16 chunks due to GitHub's 25 input limit). For larger packages:
 - Use `files` field to exclude unnecessary files
 - Use `sources` field for MCP servers (reference npm/PyPI)
 - Split into multiple packages
@@ -198,7 +198,7 @@ No support for `ara.lock` files yet. All installs fetch the latest versions.
 | Publish | workflow_dispatch | Direct API |
 | Auth | PAT | PAT or CI token |
 | Index | Git file | Git file |
-| Max size | ~1MB | Unlimited |
+| Max size | ~832KB | Unlimited |
 | Setup | Zero config | Zero config |
 
 ## Testing
