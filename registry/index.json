@@ -20,8 +20,9 @@
     "name": "my-agent",
     "description": "My first ARA package",
     "type": "kiro-agent",
-    "latest_version": "1.1.0",
+    "latest_version": "1.1.1",
     "versions": [
+      "1.1.1",
       "1.1.0",
       "1.0.0"
     ],
@@ -30,6 +31,6 @@
     ],
     "total_downloads": 0,
     "created_at": "2026-02-26T05:24:15.339786+00:00",
-    "updated_at": "2026-02-26T05:28:49.400588+00:00"
+    "updated_at": "2026-02-26T05:32:29.680044+00:00"
   }
 ]
