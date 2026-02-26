@@ -91,13 +91,20 @@ jobs:
               resp.raise_for_status()
           
           try:
-              # Parse issue body
-              manifest_match = re.search(r'### Manifest\n```json\n(.*?)\n```', issue_body, re.DOTALL)
-              package_match = re.search(r'### Package Data\n```\n(.*?)\n```', issue_body, re.DOTALL)
-              publisher_match = re.search(r'\*\*Publisher\*\*: @(\w+)', issue_body)
+              # Parse issue body - handle GitHub's markdown rendering
+              # Extract manifest JSON
+              manifest_match = re.search(r'### Manifest\s*```json\s*(.*?)\s*```', issue_body, re.DOTALL)
+              # Extract package data
+              package_match = re.search(r'### Package Data\s*```\s*(.*?)\s*```', issue_body, re.DOTALL)
+              # Extract publisher
+              publisher_match = re.search(r'\*\*Publisher\*\*:\s*@(\S+)', issue_body)
               
-              if not all([manifest_match, package_match, publisher_match]):
-                  raise ValueError("Invalid issue format")
+              if not manifest_match:
+                  raise ValueError("Could not find manifest in issue body")
+              if not package_match:
+                  raise ValueError("Could not find package data in issue body")
+              if not publisher_match:
+                  raise ValueError("Could not find publisher in issue body")
               
               manifest = json.loads(manifest_match.group(1))
               encoded_package = package_match.group(1).strip()
