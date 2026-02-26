@@ -11,18 +11,27 @@ An open-source ARA (AI Registry for Agents) registry implementation using only G
 Install the CLI:
 
 ```bash
-pip install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+# Recommended: Using pipx (cleanest approach)
+brew install pipx
+pipx install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
+
+# Alternative: Using pip with --user flag
+pip install --user https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
 ```
 
-If you get a warning that `ara` is not on PATH, add the Python bin directory to your PATH:
+If you get a warning that `ara` is not on PATH:
 
 ```bash
-# For macOS/Linux, add to ~/.bashrc or ~/.zshrc:
-export PATH="$HOME/Library/Python/3.9/bin:$PATH"  # macOS
-# or
-export PATH="$HOME/.local/bin:$PATH"  # Linux
+# For pipx (usually automatic):
+pipx ensurepath
 
-# Then reload your shell:
+# For pip --user on macOS:
+export PATH="$HOME/Library/Python/3.x/bin:$PATH"  # Replace 3.x with your version
+
+# For pip --user on Linux:
+export PATH="$HOME/.local/bin:$PATH"
+
+# Make it permanent by adding to ~/.bashrc or ~/.zshrc, then:
 source ~/.bashrc  # or source ~/.zshrc
 ```
 
