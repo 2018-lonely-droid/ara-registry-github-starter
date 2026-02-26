@@ -241,7 +241,11 @@ jobs:
                   Path(archive_path).unlink(missing_ok=True)
           
           except Exception as e:
-              comment_on_issue(f"❌ Publication failed: {str(e)}")
+              error_msg = f"❌ Publication failed: {str(e)}\n\n```\n{type(e).__name__}: {str(e)}\n```"
+              comment_on_issue(error_msg)
+              print(f"Error: {e}", file=sys.stderr)
+              import traceback
+              traceback.print_exc()
               sys.exit(1)
           
           PYTHON_SCRIPT
