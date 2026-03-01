@@ -4,6 +4,7 @@ let currentSort = 'name';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Namespaces page loaded');
     loadNamespaces();
     setupEventListeners();
 });
@@ -11,10 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup event listeners
 function setupEventListeners() {
     const sortSelect = document.getElementById('sortSelect');
-    sortSelect.addEventListener('change', (e) => {
-        currentSort = e.target.value;
-        renderNamespaces();
-    });
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            renderNamespaces();
+        });
+    }
 }
 
 // Load namespaces
@@ -22,12 +25,21 @@ async function loadNamespaces() {
     const loadingState = document.getElementById('loadingState');
     const namespacesGrid = document.getElementById('namespacesGrid');
     
-    loadingState.style.display = 'block';
-    namespacesGrid.style.display = 'none';
+    console.log('Loading namespaces...');
+    
+    if (loadingState) loadingState.style.display = 'block';
+    if (namespacesGrid) namespacesGrid.style.display = 'none';
     
     try {
+        console.log('Fetching api/packages.json');
         const response = await fetch('api/packages.json');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Loaded packages:', data.packages.length);
         
         // Group packages by namespace
         const namespaceMap = {};
@@ -44,12 +56,13 @@ async function loadNamespaces() {
         });
         
         allNamespaces = Object.values(namespaceMap);
+        console.log('Namespaces:', allNamespaces.length);
         renderNamespaces();
     } catch (error) {
         console.error('Failed to load namespaces:', error);
         showEmptyState();
     } finally {
-        loadingState.style.display = 'none';
+        if (loadingState) loadingState.style.display = 'none';
     }
 }
 

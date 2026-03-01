@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Package Details - ARA Registry</title>
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
     <!-- Header -->
@@ -32,9 +32,10 @@
                 <p>Loading package...</p>
             </div>
             
-            <div id="packageContent" class="package-layout" style="display: none;">
-                <!-- Main Content -->
-                <div class="package-main">
+            <div id="packageContent" style="display: none;">
+                <div class="package-layout">
+                    <!-- Main Content -->
+                    <div class="package-main">
                     <!-- Package Header -->
                     <div class="package-header">
                         <div class="package-title-section">
@@ -110,15 +111,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Sidebar -->
-                <aside class="package-sidebar">
-                    <div class="sidebar-section">
-                        <h3>Versions</h3>
-                        <div id="versionsList" class="versions-list"></div>
                     </div>
-                </aside>
+                    
+                    <!-- Sidebar -->
+                    <aside class="package-sidebar">
+                        <div class="sidebar-section">
+                            <h3>Versions</h3>
+                            <div id="versionsList" class="versions-list"></div>
+                        </div>
+                    </aside>
+                </div>
             </div>
             
             <div id="errorState" class="error-state" style="display: none;">
@@ -135,6 +137,6 @@
         </div>
     </footer>
 
-    <script src="package.js?v=4"></script>
+    <script src="package.js?v=5"></script>
 </body>
 </html>
