@@ -166,7 +166,6 @@ function renderVersions(versions, currentVersion) {
         return `
             <div class="version-item ${isActive ? 'version-active' : ''}" onclick="selectVersion('${escapeHtml(version)}')">
                 <span class="version-number">v${escapeHtml(version)}</span>
-                ${isActive ? '<span class="version-badge">Current</span>' : ''}
             </div>
         `;
     }).join('');
