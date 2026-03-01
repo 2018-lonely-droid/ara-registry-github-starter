@@ -12,10 +12,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const markdown = await response.text();
         
-        // Convert markdown to HTML (simple conversion)
-        const html = convertMarkdownToHTML(markdown);
+        // Wait for marked.js to load
+        if (typeof marked === 'undefined') {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Convert markdown to HTML using marked.js
+        const html = marked.parse(markdown);
         
         docsContainer.innerHTML = html;
+        
+        // Add syntax highlighting class to code blocks
+        docsContainer.querySelectorAll('pre code').forEach(block => {
+            block.classList.add('code-block');
+        });
+        
     } catch (error) {
         console.error('Error loading docs:', error);
         docsContainer.innerHTML = `
@@ -26,43 +37,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 });
-
-// Simple markdown to HTML converter
-function convertMarkdownToHTML(markdown) {
-    let html = markdown;
-    
-    // Code blocks
-    html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
-    
-    // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-    
-    // Bold
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Italic
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-    
-    // Inline code
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
-    // Lists
-    html = html.replace(/^\* (.*$)/gim, '<li>$1</li>');
-    html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    
-    // Paragraphs
-    html = html.split('\n\n').map(para => {
-        if (para.startsWith('<h') || para.startsWith('<pre') || para.startsWith('<ul') || para.startsWith('<ol')) {
-            return para;
-        }
-        return `<p>${para}</p>`;
-    }).join('\n');
-    
-    return html;
-}
