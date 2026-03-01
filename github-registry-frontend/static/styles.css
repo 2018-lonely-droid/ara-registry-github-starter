@@ -1134,3 +1134,101 @@ body {
         position: static;
     }
 }
+
+
+/* Docs Page Styles */
+.docs-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+}
+
+.docs-header h1 {
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.docs-header p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.docs-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.docs-section {
+    line-height: 1.8;
+}
+
+.docs-section h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.docs-section h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.docs-section p {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.docs-section ul {
+    margin-bottom: 16px;
+    padding-left: 24px;
+}
+
+.docs-section li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.docs-section code {
+    background: var(--bg-light);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.docs-section pre {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.docs-section pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+.docs-section a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    transition: all 0.2s;
+}
+
+.docs-section a:hover {
+    text-decoration-color: var(--primary);
+}
