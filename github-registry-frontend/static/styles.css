@@ -936,6 +936,121 @@ body {
     transform: scale(1.02);
 }
 
+/* Page Header */
+.page-header {
+    background: var(--bg-sage);
+    padding: 60px 0 40px;
+    text-align: center;
+}
+
+.page-header h1 {
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.page-header p {
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+/* Content with Sidebar Layout */
+.content-with-sidebar {
+    padding: 40px 0 80px;
+}
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 32px;
+}
+
+.main-content {
+    min-width: 0;
+}
+
+.sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.filter-pills-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-pills-vertical .pill {
+    width: 100%;
+    text-align: left;
+    justify-content: flex-start;
+}
+
+/* Namespaces Grid */
+.namespaces-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.namespace-card {
+    background: var(--bg-white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.namespace-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    border-color: var(--accent);
+}
+
+.namespace-header {
+    margin-bottom: 16px;
+}
+
+.namespace-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.namespace-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.namespace-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.namespace-packages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.namespace-package-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: var(--bg-light);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .hero-title {
@@ -1001,5 +1116,21 @@ body {
     
     .markdown-content h3 {
         font-size: 18px;
+    }
+    
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        position: static;
+    }
+    
+    .package-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .package-sidebar {
+        position: static;
     }
 }

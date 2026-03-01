@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner - ARA Registry</title>
+    <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo"><a href="index.html">ARA Registry</a></h1>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Browse</a>
+                    <a href="docs.html" class="nav-link">Docs</a>
+                    <a href="https://github.com/2018-lonely-droid/ara-registry-github-starter" class="nav-link" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1 id="ownerName">Owner</h1>
+            <p id="ownerStats">Loading...</p>
+        </div>
+    </section>
+
+    <section class="packages">
+        <div class="container">
+            <div id="packagesGrid" class="packages-grid"></div>
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading packages...</p>
+            </div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>No packages found for this owner</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 ARA Registry. Open source under Apache-2.0 license.</p>
+        </div>
+    </footer>
+
+    <script src="owner.js?v=4"></script>
+</body>
+</html>
