@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Packages - ARA Registry</title>
+    <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo"><a href="index.html">ARA Registry</a></h1>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Browse</a>
+                    <a href="docs.html" class="nav-link">Docs</a>
+                    <a href="https://github.com/2018-lonely-droid/ara-registry-github-starter" class="nav-link" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>All Packages</h1>
+            <p>Browse all available packages in the registry</p>
+        </div>
+    </section>
+
+    <section class="content-with-sidebar">
+        <div class="container">
+            <div class="layout-grid">
+                <div class="main-content">
+                    <div id="packagesGrid" class="packages-grid"></div>
+                    <div id="loadingState" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading packages...</p>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <p>No packages found</p>
+                    </div>
+                </div>
+                
+                <aside class="sidebar">
+                    <div class="sidebar-section">
+                        <h3>Filters</h3>
+                        <div class="filter-group">
+                            <label class="filter-label">Type</label>
+                            <div class="filter-pills-vertical" id="typeFilters"></div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Sort</label>
+                            <select id="sortSelect" class="filter-select">
+                                <option value="updated">Recently Updated</option>
+                                <option value="created">Newest</option>
+                                <option value="downloads">Most Downloads</option>
+                                <option value="name">Name (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 ARA Registry. Open source under Apache-2.0 license.</p>
+        </div>
+    </footer>
+
+    <script src="packages.js?v=4"></script>
+</body>
+</html>

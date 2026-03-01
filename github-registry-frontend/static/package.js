@@ -4,6 +4,7 @@ const API_BASE = 'api';
 // Get package from URL
 const urlParams = new URLSearchParams(window.location.search);
 const packageName = urlParams.get('pkg');
+let currentPackageData = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     loadPackage(namespace, name);
-    setupTabs();
 });
 
 // Setup tabs
@@ -72,15 +72,23 @@ async function loadPackage(namespace, name) {
 
 // Render package details
 function renderPackage(pkg) {
+    currentPackageData = pkg;
     const fullName = `${pkg.namespace}/${pkg.name}`;
     
     // Header
     document.getElementById('packageName').textContent = fullName;
     document.getElementById('packageType').textContent = pkg.type;
-    document.getElementById('packageDescription').textContent = pkg.description;
     document.getElementById('packageVersion').textContent = `v${pkg.latest_version}`;
-    document.getElementById('packageOwner').textContent = pkg.owner || pkg.namespace;
     document.getElementById('packageDownloads').textContent = pkg.total_downloads.toLocaleString();
+    
+    // Owner link
+    const ownerLink = document.getElementById('packageOwnerLink');
+    const owner = pkg.owner || pkg.namespace;
+    ownerLink.textContent = owner;
+    ownerLink.href = `owner.html?owner=${encodeURIComponent(owner)}`;
+    
+    // Summary
+    document.getElementById('packageDescription').textContent = pkg.description;
     
     // Tags
     const tagsHtml = pkg.tags.map(tag => 
@@ -88,28 +96,91 @@ function renderPackage(pkg) {
     ).join('');
     document.getElementById('packageTags').innerHTML = tagsHtml;
     
+    // Package contents
+    renderPackageContents(pkg);
+    
     // Install command
     const installCmd = `ara install ${fullName}`;
     document.getElementById('installCommand').textContent = installCmd;
     
     // Versions
-    renderVersions(pkg.versions);
+    renderVersions(pkg.versions, pkg.latest_version);
     
     // Metadata
     renderMetadata(pkg);
 }
 
+// Render package contents
+function renderPackageContents(pkg) {
+    const contentsEl = document.getElementById('contentsInfo');
+    
+    let html = '<div class="contents-list">';
+    
+    // Type-specific content description
+    switch(pkg.type) {
+        case 'kiro-agent':
+            html += '<p>This package contains a Kiro custom agent configuration with prompts, tools, and behaviors.</p>';
+            break;
+        case 'mcp-server':
+            html += '<p>This package contains a Model Context Protocol server that extends AI capabilities.</p>';
+            break;
+        case 'context':
+            html += '<p>This package contains knowledge files, prompt templates, and reference materials.</p>';
+            break;
+        case 'skill':
+            html += '<p>This package contains procedural knowledge via SKILL.md that agents load dynamically.</p>';
+            break;
+        case 'kiro-powers':
+            html += '<p>This package contains MCP tools, steering files and hooks that give agents specialized knowledge.</p>';
+            break;
+        case 'kiro-steering':
+            html += '<p>This package contains Kiro persistent knowledge about your projects.</p>';
+            break;
+        case 'agents-md':
+            html += '<p>This package uses the AGENTS.md format for guiding coding agents.</p>';
+            break;
+    }
+    
+    html += `<ul class="package-info-list">`;
+    html += `<li><strong>Package Type:</strong> ${escapeHtml(pkg.type)}</li>`;
+    html += `<li><strong>Latest Version:</strong> v${escapeHtml(pkg.latest_version)}</li>`;
+    html += `<li><strong>Total Versions:</strong> ${pkg.versions.length}</li>`;
+    if (pkg.license) {
+        html += `<li><strong>License:</strong> ${escapeHtml(pkg.license)}</li>`;
+    }
+    html += `</ul></div>`;
+    
+    contentsEl.innerHTML = html;
+}
+
 // Render versions list
-function renderVersions(versions) {
+function renderVersions(versions, currentVersion) {
     const versionsList = document.getElementById('versionsList');
     
-    const versionsHtml = versions.map(version => `
-        <div class="version-item">
-            <span class="version-number">v${escapeHtml(version)}</span>
-        </div>
-    `).join('');
+    const versionsHtml = versions.map(version => {
+        const isActive = version === currentVersion;
+        return `
+            <div class="version-item ${isActive ? 'version-active' : ''}" onclick="selectVersion('${escapeHtml(version)}')">
+                <span class="version-number">v${escapeHtml(version)}</span>
+                ${isActive ? '<span class="version-badge">Current</span>' : ''}
+            </div>
+        `;
+    }).join('');
     
     versionsList.innerHTML = versionsHtml;
+}
+
+// Select a version
+function selectVersion(version) {
+    if (!currentPackageData) return;
+    
+    // For now, just show an alert since we don't have version-specific data
+    // In a full implementation, you'd fetch version-specific package data
+    alert(`Version switching coming soon! Selected: v${version}`);
+    
+    // TODO: Implement version-specific data fetching
+    // const [namespace, name] = packageName.split('/');
+    // loadPackageVersion(namespace, name, version);
 }
 
 // Render metadata

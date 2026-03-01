@@ -32,57 +32,57 @@
                 <p>Loading package...</p>
             </div>
             
-            <div id="packageContent" style="display: none;">
-                <!-- Package Header -->
-                <div class="package-header">
-                    <div class="package-title-section">
-                        <h1 class="package-title" id="packageName"></h1>
-                        <span class="package-type-badge" id="packageType"></span>
+            <div id="packageContent" class="package-layout" style="display: none;">
+                <!-- Main Content -->
+                <div class="package-main">
+                    <!-- Package Header -->
+                    <div class="package-header">
+                        <div class="package-title-section">
+                            <h1 class="package-title" id="packageName"></h1>
+                            <span class="package-type-badge" id="packageType"></span>
+                        </div>
+                        
+                        <div class="package-meta-row">
+                            <span class="meta-item">
+                                <strong>Version:</strong> 
+                                <span id="packageVersion"></span>
+                            </span>
+                            <span class="meta-item">
+                                <strong>Owner:</strong> 
+                                <a href="#" id="packageOwnerLink" class="owner-link"></a>
+                            </span>
+                            <span class="meta-item">
+                                <strong>Downloads:</strong> 
+                                <span id="packageDownloads"></span>
+                            </span>
+                        </div>
                     </div>
-                    <p class="package-description" id="packageDescription"></p>
-                    
-                    <div class="package-meta">
-                        <span class="meta-item">
-                            <strong>Version:</strong> 
-                            <span id="packageVersion"></span>
-                        </span>
-                        <span class="meta-item">
-                            <strong>Owner:</strong> 
-                            <span id="packageOwner"></span>
-                        </span>
-                        <span class="meta-item">
-                            <strong>Downloads:</strong> 
-                            <span id="packageDownloads"></span>
-                        </span>
-                    </div>
-                    
-                    <div class="package-tags" id="packageTags"></div>
-                </div>
 
-                <!-- Install Command -->
-                <div class="install-section">
-                    <h2>Install</h2>
-                    <div class="code-block">
-                        <code id="installCommand"></code>
-                        <button class="copy-button" onclick="copyInstallCommand()">Copy</button>
+                    <!-- Summary Section -->
+                    <div class="package-section">
+                        <h2>Summary</h2>
+                        <p class="package-description" id="packageDescription"></p>
+                        <div class="package-tags" id="packageTags"></div>
                     </div>
-                </div>
 
-                <!-- Tabs -->
-                <div class="tabs">
-                    <button class="tab active" data-tab="versions">Versions</button>
-                    <button class="tab" data-tab="metadata">Metadata</button>
-                </div>
-
-                <!-- Tab Content -->
-                <div class="tab-content">
-                    <div id="versionsTab" class="tab-pane active">
-                        <h3>Available Versions</h3>
-                        <div id="versionsList" class="versions-list"></div>
+                    <!-- Package Contents -->
+                    <div class="package-section" id="packageContents">
+                        <h2>Package Contents</h2>
+                        <div id="contentsInfo"></div>
                     </div>
-                    
-                    <div id="metadataTab" class="tab-pane">
-                        <h3>Package Metadata</h3>
+
+                    <!-- Install Command -->
+                    <div class="package-section">
+                        <h2>Install</h2>
+                        <div class="code-block">
+                            <code id="installCommand"></code>
+                            <button class="copy-button" onclick="copyInstallCommand()">Copy</button>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="package-section">
+                        <h2>Metadata</h2>
                         <div class="metadata-grid">
                             <div class="metadata-item">
                                 <strong>Author:</strong>
@@ -111,6 +111,14 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Sidebar -->
+                <aside class="package-sidebar">
+                    <div class="sidebar-section">
+                        <h3>Versions</h3>
+                        <div id="versionsList" class="versions-list"></div>
+                    </div>
+                </aside>
             </div>
             
             <div id="errorState" class="error-state" style="display: none;">
