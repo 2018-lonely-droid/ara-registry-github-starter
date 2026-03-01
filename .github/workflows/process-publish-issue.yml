@@ -2,7 +2,7 @@ name: Process Publish Issue
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
 permissions:
   contents: write

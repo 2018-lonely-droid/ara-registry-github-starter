@@ -207,29 +207,18 @@ def publish(
         time.sleep(2)
         
         with http.get_client() as client:
-            # Check if package appears in the index (most reliable indicator)
-            try:
-                idx = index.fetch_index()
-                for pkg in idx:
-                    if pkg.get("namespace") == namespace and pkg.get("name") == name:
-                        if version in pkg.get("versions", []):
-                            print(f"✅ Published {namespace}/{name}@{version}")
-                            return {"status": "success", "issue": issue_number}
-            except Exception:
-                pass  # Index check failed, continue polling
-            
-            # Check issue state and comments
+            # Check issue state
             issue_url_api = f"{http.api_base()}/issues/{issue_number}"
             response = client.get(issue_url_api)
             response.raise_for_status()
             issue_data = response.json()
             
-            # If issue is closed, it's done
+            # If issue is closed, publication succeeded
             if issue_data.get("state") == "closed":
                 print(f"✅ Published {namespace}/{name}@{version}")
                 return {"status": "success", "issue": issue_number}
             
-            # Check comments for failure
+            # Check comments for failure (workflow posts error before closing)
             comments_url = f"{http.api_base()}/issues/{issue_number}/comments"
             response = client.get(comments_url)
             response.raise_for_status()
@@ -237,22 +226,22 @@ def publish(
             
             for comment in comments:
                 body = comment.get("body", "")
-                if "❌ Publication failed" in body or "❌" in body:
+                if "❌" in body:
                     raise RuntimeError(f"Publication failed. See issue #{issue_number} for details: {issue_url}")
     
-    # Final check - look at index one more time
-    try:
-        idx = index.fetch_index()
-        for pkg in idx:
-            if pkg.get("namespace") == namespace and pkg.get("name") == name:
-                if version in pkg.get("versions", []):
-                    print(f"✅ Published {namespace}/{name}@{version}")
-                    return {"status": "success", "issue": issue_number}
-    except Exception:
-        pass
+    # Timeout - check one final time
+    with http.get_client() as client:
+        issue_url_api = f"{http.api_base()}/issues/{issue_number}"
+        response = client.get(issue_url_api)
+        response.raise_for_status()
+        issue_data = response.json()
+        
+        if issue_data.get("state") == "closed":
+            print(f"✅ Published {namespace}/{name}@{version}")
+            return {"status": "success", "issue": issue_number}
     
-    print(f"⚠️  Publication may have succeeded. Check issue #{issue_number} for status: {issue_url}")
-    print(f"    Or verify with: ara info {namespace}/{name}")
+    print(f"⚠️  Timeout waiting for workflow. Check issue #{issue_number}: {issue_url}")
+    print(f"    The package may still be publishing. Verify with: ara info {namespace}/{name}")
     return {"status": "unknown", "issue": issue_number}
 
 
