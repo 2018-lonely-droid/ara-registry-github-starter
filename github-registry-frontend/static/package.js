@@ -53,7 +53,7 @@ async function loadPackage(namespace, name) {
     errorState.style.display = 'none';
     
     try {
-        const response = await fetch(`${API_BASE}/packages/${namespace}/${name}`);
+        const response = await fetch(`api/packages/${namespace}/${name}.json`);
         
         if (!response.ok) {
             throw new Error('Package not found');

@@ -108,7 +108,7 @@ function setupEventListeners() {
 // Load stats
 async function loadStats() {
     try {
-        const response = await fetch(`${API_BASE}/stats`);
+        const response = await fetch('api/stats.json');
         const data = await response.json();
         
         animateCounter('totalPackages', data.total_packages);
@@ -128,7 +128,7 @@ async function loadPackages() {
     packagesGrid.style.display = 'none';
     
     try {
-        const response = await fetch(`${API_BASE}/packages?limit=500`);
+        const response = await fetch('api/packages.json');
         const data = await response.json();
         allPackages = data.packages;
         

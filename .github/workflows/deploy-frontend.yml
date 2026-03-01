@@ -43,16 +43,6 @@ jobs:
           cd github-registry-frontend
           python build_static_api.py
       
-      - name: Update API URLs for static deployment
-        run: |
-          cd github-registry-frontend/static
-          # Update app.js to use static JSON files
-          sed -i "s|fetch(\\\`\\\${API_BASE}/stats\\\`)|fetch('api/stats.json')|g" app.js
-          sed -i "s|fetch(\\\`\\\${API_BASE}/packages?limit=500\\\`)|fetch('api/packages.json')|g" app.js
-          
-          # Update package.js to use static JSON files  
-          sed -i "s|fetch(\\\`\\\${API_BASE}/packages/\\\${namespace}/\\\${name}\\\`)|fetch(\\\`api/packages/\\\${namespace}/\\\${name}.json\\\`)|g" package.js
-      
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
