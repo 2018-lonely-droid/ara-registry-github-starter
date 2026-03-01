@@ -27,15 +27,34 @@
             <h2 class="hero-title">Discover AI Agents & Tools</h2>
             <p class="hero-subtitle">Browse and install packages from the ARA registry</p>
             
-            <div class="search-container">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="Search packages..."
-                    autocomplete="off"
-                >
-                <button class="search-button">🔍</button>
+            <div class="search-wrapper">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Search by name, description, tags, or namespace..."
+                        autocomplete="off"
+                    >
+                    <button class="clear-button" id="clearSearch" style="display: none;">✕</button>
+                </div>
+                
+                <!-- Search Suggestions Dropdown -->
+                <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+                    <div class="suggestions-section">
+                        <div class="suggestions-header">Packages</div>
+                        <div id="packageSuggestions"></div>
+                    </div>
+                    <div class="suggestions-section">
+                        <div class="suggestions-header">Tags</div>
+                        <div id="tagSuggestions"></div>
+                    </div>
+                    <div class="suggestions-section">
+                        <div class="suggestions-header">Namespaces</div>
+                        <div id="namespaceSuggestions"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -60,31 +79,63 @@
         </div>
     </section>
 
-    <!-- Filters -->
+    <!-- Advanced Filters -->
     <section class="filters">
         <div class="container">
-            <div class="filter-group">
-                <label class="filter-label">Type:</label>
-                <div class="filter-pills" id="typeFilters">
-                    <button class="pill active" data-type="">All</button>
-                    <button class="pill" data-type="kiro-agent">Kiro Agent</button>
-                    <button class="pill" data-type="mcp-server">MCP Server</button>
-                    <button class="pill" data-type="context">Context</button>
-                    <button class="pill" data-type="skill">Skill</button>
-                    <button class="pill" data-type="kiro-powers">Kiro Powers</button>
-                    <button class="pill" data-type="kiro-steering">Kiro Steering</button>
-                    <button class="pill" data-type="agents-md">Agents.md</button>
+            <div class="filters-header">
+                <h3 class="filters-title">Filters</h3>
+                <button class="clear-filters" id="clearFilters" style="display: none;">Clear all</button>
+            </div>
+            
+            <div class="filters-grid">
+                <!-- Type Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Package Type</label>
+                    <div class="filter-pills" id="typeFilters">
+                        <button class="pill active" data-type="">all types</button>
+                        <button class="pill" data-type="kiro-agent">kiro agent</button>
+                        <button class="pill" data-type="mcp-server">mcp server</button>
+                        <button class="pill" data-type="context">context</button>
+                        <button class="pill" data-type="skill">skill</button>
+                        <button class="pill" data-type="kiro-powers">kiro powers</button>
+                        <button class="pill" data-type="kiro-steering">kiro steering</button>
+                        <button class="pill" data-type="agents-md">agents.md</button>
+                    </div>
+                </div>
+                
+                <!-- Popular Tags Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Popular Tags</label>
+                    <div class="filter-pills" id="popularTags">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Namespace Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Namespace</label>
+                    <select id="namespaceSelect" class="filter-select">
+                        <option value="">all namespaces</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                
+                <!-- Sort -->
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <select id="sortSelect" class="filter-select">
+                        <option value="updated">recently updated</option>
+                        <option value="created">newest first</option>
+                        <option value="downloads">most downloads</option>
+                        <option value="name">name (a-z)</option>
+                    </select>
                 </div>
             </div>
             
-            <div class="filter-group">
-                <label class="filter-label">Sort:</label>
-                <select id="sortSelect" class="sort-select">
-                    <option value="updated">Recently Updated</option>
-                    <option value="created">Newest</option>
-                    <option value="downloads">Most Downloads</option>
-                    <option value="name">Name (A-Z)</option>
-                </select>
+            <!-- Active Filters Display -->
+            <div class="active-filters" id="activeFilters" style="display: none;">
+                <span class="active-filters-label">Active filters:</span>
+                <div class="active-filters-list" id="activeFiltersList"></div>
             </div>
         </div>
     </section>
