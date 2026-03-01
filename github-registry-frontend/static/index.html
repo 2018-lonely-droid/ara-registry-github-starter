@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARA Registry - Discover AI Agents & Tools</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🎯 ARA Registry</h1>
+                <nav class="nav">
+                    <a href="/" class="nav-link active">Browse</a>
+                    <a href="https://github.com/aws/ara" class="nav-link" target="_blank">Docs</a>
+                    <a href="https://github.com/aws/ara" class="nav-link" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Discover AI Agents & Tools</h2>
+            <p class="hero-subtitle">Browse and install packages from the ARA registry</p>
+            
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search packages..."
+                    autocomplete="off"
+                >
+                <button class="search-button">🔍</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPackages">-</div>
+                    <div class="stat-label">Packages</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDownloads">-</div>
+                    <div class="stat-label">Downloads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalNamespaces">-</div>
+                    <div class="stat-label">Namespaces</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-group">
+                <label class="filter-label">Type:</label>
+                <div class="filter-pills" id="typeFilters">
+                    <button class="pill active" data-type="">All</button>
+                    <button class="pill" data-type="kiro-agent">Kiro Agent</button>
+                    <button class="pill" data-type="mcp-server">MCP Server</button>
+                    <button class="pill" data-type="context">Context</button>
+                    <button class="pill" data-type="skill">Skill</button>
+                    <button class="pill" data-type="kiro-powers">Kiro Powers</button>
+                    <button class="pill" data-type="kiro-steering">Kiro Steering</button>
+                    <button class="pill" data-type="agents-md">Agents.md</button>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Sort:</label>
+                <select id="sortSelect" class="sort-select">
+                    <option value="updated">Recently Updated</option>
+                    <option value="created">Newest</option>
+                    <option value="downloads">Most Downloads</option>
+                    <option value="name">Name (A-Z)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Grid -->
+    <section class="packages">
+        <div class="container">
+            <div id="packagesGrid" class="packages-grid">
+                <!-- Packages will be loaded here -->
+            </div>
+            
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading packages...</p>
+            </div>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>No packages found</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 ARA Registry. Open source under Apache-2.0 license.</p>
+        </div>
+    </footer>
+
+    <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'github-registry-frontend/**'
+      - 'registry/**'
+      - '.github/workflows/deploy-frontend.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd github-registry-frontend
+          pip install -r requirements.txt
+      
+      - name: Generate static API data
+        run: |
+          cd github-registry-frontend
+          python -c "
+import json
+from pathlib import Path
+
+# Load registry data
+registry_path = Path('../registry')
+index_file = registry_path / 'index.json'
+ownership_file = registry_path / 'ownership.json'
+
+with open(index_file) as f:
+    index = json.load(f)
+
+with open(ownership_file) as f:
+    ownership = json.load(f)
+
+# Create static API directory
+api_dir = Path('static/api')
+api_dir.mkdir(exist_ok=True)
+
+# Generate stats
+total_packages = len(index)
+total_downloads = sum(pkg.get('total_downloads', 0) for pkg in index)
+namespaces = set(pkg.get('namespace') for pkg in index)
+total_namespaces = len(namespaces)
+
+types = {}
+for pkg in index:
+    pkg_type = pkg.get('type', 'kiro-agent')
+    types[pkg_type] = types.get(pkg_type, 0) + 1
+
+stats = {
+    'total_packages': total_packages,
+    'total_downloads': total_downloads,
+    'total_namespaces': total_namespaces,
+    'package_types': types,
+}
+
+with open(api_dir / 'stats.json', 'w') as f:
+    json.dump(stats, f)
+
+# Generate packages list
+packages_data = {
+    'packages': index,
+    'total': len(index),
+    'limit': len(index),
+    'offset': 0,
+}
+
+with open(api_dir / 'packages.json', 'w') as f:
+    json.dump(packages_data, f)
+
+# Generate individual package files
+packages_dir = api_dir / 'packages'
+packages_dir.mkdir(exist_ok=True)
+
+for pkg in index:
+    namespace = pkg.get('namespace')
+    name = pkg.get('name')
+    
+    # Add owner info
+    pkg_key = f'{namespace}/{name}'
+    owner = ownership.get('packages', {}).get(pkg_key)
+    if owner:
+        pkg['owner'] = owner
+    
+    # Create namespace directory
+    ns_dir = packages_dir / namespace
+    ns_dir.mkdir(exist_ok=True)
+    
+    # Write package file
+    with open(ns_dir / f'{name}.json', 'w') as f:
+        json.dump(pkg, f)
+
+print('✅ Static API data generated')
+"
+      
+      - name: Update API URLs for static deployment
+        run: |
+          cd github-registry-frontend/static
+          # Update app.js to use static JSON files
+          sed -i "s|const API_BASE = '/api';|const API_BASE = '/api';|g" app.js
+          sed -i "s|fetch(\`\${API_BASE}/stats\`)|fetch('/api/stats.json')|g" app.js
+          sed -i "s|fetch(\`\${API_BASE}/packages?limit=500\`)|fetch('/api/packages.json')|g" app.js
+          
+          # Update package.js to use static JSON files
+          sed -i "s|const API_BASE = '/api';|const API_BASE = '/api';|g" package.js
+          sed -i "s|fetch(\`\${API_BASE}/packages/\${namespace}/\${name}\`)|fetch(\`/api/packages/\${namespace}/\${name}.json\`)|g" package.js
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'github-registry-frontend/static'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

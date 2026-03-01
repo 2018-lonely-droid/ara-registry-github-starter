@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Details - ARA Registry</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo"><a href="/">🎯 ARA Registry</a></h1>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Browse</a>
+                    <a href="https://github.com/aws/ara" class="nav-link" target="_blank">Docs</a>
+                    <a href="https://github.com/aws/ara" class="nav-link" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Package Details -->
+    <section class="package-detail">
+        <div class="container">
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading package...</p>
+            </div>
+            
+            <div id="packageContent" style="display: none;">
+                <!-- Package Header -->
+                <div class="package-header">
+                    <div class="package-title-section">
+                        <h1 class="package-title" id="packageName"></h1>
+                        <span class="package-type-badge" id="packageType"></span>
+                    </div>
+                    <p class="package-description" id="packageDescription"></p>
+                    
+                    <div class="package-meta">
+                        <span class="meta-item">
+                            <strong>Version:</strong> 
+                            <span id="packageVersion"></span>
+                        </span>
+                        <span class="meta-item">
+                            <strong>Owner:</strong> 
+                            <span id="packageOwner"></span>
+                        </span>
+                        <span class="meta-item">
+                            <strong>Downloads:</strong> 
+                            <span id="packageDownloads"></span>
+                        </span>
+                    </div>
+                    
+                    <div class="package-tags" id="packageTags"></div>
+                </div>
+
+                <!-- Install Command -->
+                <div class="install-section">
+                    <h2>Install</h2>
+                    <div class="code-block">
+                        <code id="installCommand"></code>
+                        <button class="copy-button" onclick="copyInstallCommand()">Copy</button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="versions">Versions</button>
+                    <button class="tab" data-tab="metadata">Metadata</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <div id="versionsTab" class="tab-pane active">
+                        <h3>Available Versions</h3>
+                        <div id="versionsList" class="versions-list"></div>
+                    </div>
+                    
+                    <div id="metadataTab" class="tab-pane">
+                        <h3>Package Metadata</h3>
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <strong>Author:</strong>
+                                <span id="metaAuthor"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <strong>License:</strong>
+                                <span id="metaLicense"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <strong>Homepage:</strong>
+                                <span id="metaHomepage"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <strong>Repository:</strong>
+                                <span id="metaRepository"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <strong>Created:</strong>
+                                <span id="metaCreated"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <strong>Updated:</strong>
+                                <span id="metaUpdated"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="errorState" class="error-state" style="display: none;">
+                <p>Package not found</p>
+                <a href="/" class="button">Back to Browse</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 ARA Registry. Open source under Apache-2.0 license.</p>
+        </div>
+    </footer>
+
+    <script src="/package.js"></script>
+</body>
+</html>

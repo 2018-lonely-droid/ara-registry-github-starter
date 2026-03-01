@@ -14,6 +14,25 @@ ARA supports various types of packages:
 - **Kiro Steering** (`kiro-steering`): Kiro persistent knowledge about your projects
 - **AGENTS.md** (`agents-md`): An open format for guiding coding agents
 
+## Registry Implementations
+
+This repository includes a complete GitHub-based registry implementation:
+
+- **[GitHub Registry](github-registry/)** - CLI and backend using GitHub as storage
+- **[Web Frontend](github-registry-frontend/)** - Beautiful web interface for browsing packages
+
+### Web Interface
+
+A modern, PartyRock-inspired web interface for discovering and browsing ARA packages:
+
+- 🔍 Real-time search and filtering
+- 📊 Live statistics dashboard
+- 🎨 Vibrant, gradient-based design
+- 📱 Fully responsive
+- 🚀 Deploy to GitHub Pages in minutes
+
+[Get Started →](github-registry-frontend/GETTING-STARTED.md)
+
 ## Quick Links
 
 - [Vision](vision.md) - Understand the project goals and tenets
@@ -21,6 +40,8 @@ ARA supports various types of packages:
 - [JSON Schema](ara.schema.json) - Validate your ara.json
 - [Registry API](registry-api.md) - HTTP API specification for registry implementations
 - [Security](security.md) - Security guidance for implementers
+- [GitHub Registry README](github-registry/README.md) - CLI and publishing guide
+- [Frontend Documentation](github-registry-frontend/README.md) - Web interface docs
 
 ## Example ara.json
 
