@@ -1,9 +1,7 @@
-// API base URL
-const API_BASE = 'api';
-
 // Get package from URL
 const urlParams = new URLSearchParams(window.location.search);
 const packageName = urlParams.get('pkg');
+const requestedVersion = urlParams.get('version');
 let currentPackageData = null;
 
 // Initialize
@@ -75,10 +73,15 @@ function renderPackage(pkg) {
     currentPackageData = pkg;
     const fullName = `${pkg.namespace}/${pkg.name}`;
     
+    // Use requested version if provided, otherwise use latest
+    const displayVersion = requestedVersion && pkg.versions.includes(requestedVersion) 
+        ? requestedVersion 
+        : pkg.latest_version;
+    
     // Header
     document.getElementById('packageName').textContent = fullName;
     document.getElementById('packageType').textContent = pkg.type;
-    document.getElementById('packageVersion').textContent = `v${pkg.latest_version}`;
+    document.getElementById('packageVersion').textContent = `v${displayVersion}`;
     document.getElementById('packageDownloads').textContent = pkg.total_downloads.toLocaleString();
     
     // Owner link
@@ -104,7 +107,7 @@ function renderPackage(pkg) {
     document.getElementById('installCommand').textContent = installCmd;
     
     // Versions
-    renderVersions(pkg.versions, pkg.latest_version);
+    renderVersions(pkg.versions, displayVersion);
     
     // Metadata
     renderMetadata(pkg);
@@ -174,13 +177,23 @@ function renderVersions(versions, currentVersion) {
 function selectVersion(version) {
     if (!currentPackageData) return;
     
-    // For now, just show an alert since we don't have version-specific data
-    // In a full implementation, you'd fetch version-specific package data
-    alert(`Version switching coming soon! Selected: v${version}`);
+    // Update URL with version parameter
+    const [namespace, name] = packageName.split('/');
+    const newUrl = `${window.location.pathname}?pkg=${encodeURIComponent(packageName)}&version=${encodeURIComponent(version)}`;
+    window.history.pushState({}, '', newUrl);
     
-    // TODO: Implement version-specific data fetching
-    // const [namespace, name] = packageName.split('/');
-    // loadPackageVersion(namespace, name, version);
+    // Update the displayed version
+    document.getElementById('packageVersion').textContent = `v${version}`;
+    
+    // Update active version in sidebar
+    document.querySelectorAll('.version-item').forEach(item => {
+        item.classList.remove('version-active');
+    });
+    event.target.closest('.version-item').classList.add('version-active');
+    
+    // In a real implementation, you would fetch version-specific data here
+    // For now, we just update the UI to show the selected version
+    console.log(`Switched to version ${version}`);
 }
 
 // Render metadata

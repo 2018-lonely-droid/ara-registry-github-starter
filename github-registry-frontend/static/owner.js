@@ -17,17 +17,31 @@ async function loadOwnerPackages() {
     const loadingState = document.getElementById('loadingState');
     const packagesGrid = document.getElementById('packagesGrid');
     
+    console.log('Loading packages for owner:', ownerName);
+    
     loadingState.style.display = 'block';
     packagesGrid.style.display = 'none';
     
     try {
+        console.log('Fetching api/packages.json');
         const response = await fetch('api/packages.json');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Loaded packages:', data.packages.length);
+        console.log('All packages:', data.packages);
         
         // Filter packages by owner/namespace
-        const ownerPackages = data.packages.filter(pkg => 
-            pkg.namespace === ownerName || (pkg.owner && pkg.owner === ownerName)
-        );
+        const ownerPackages = data.packages.filter(pkg => {
+            const matches = pkg.namespace === ownerName || (pkg.owner && pkg.owner === ownerName);
+            console.log(`Package ${pkg.namespace}/${pkg.name}: namespace=${pkg.namespace}, owner=${pkg.owner}, matches=${matches}`);
+            return matches;
+        });
+        
+        console.log('Owner packages found:', ownerPackages.length);
         
         if (ownerPackages.length === 0) {
             showEmptyState();
