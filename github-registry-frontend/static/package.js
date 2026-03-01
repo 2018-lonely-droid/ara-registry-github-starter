@@ -100,7 +100,7 @@ function renderPackage(pkg) {
     document.getElementById('packageTags').innerHTML = tagsHtml;
     
     // Package contents
-    renderPackageContents(pkg);
+    renderPackageContents(pkg, displayVersion);
     
     // Install command
     const installCmd = `ara install ${fullName}`;
@@ -114,7 +114,7 @@ function renderPackage(pkg) {
 }
 
 // Render package contents
-function renderPackageContents(pkg) {
+function renderPackageContents(pkg, displayVersion) {
     const contentsEl = document.getElementById('contentsInfo');
     
     let html = '<div class="contents-list">';
@@ -146,6 +146,7 @@ function renderPackageContents(pkg) {
     
     html += `<ul class="package-info-list">`;
     html += `<li><strong>Package Type:</strong> ${escapeHtml(pkg.type)}</li>`;
+    html += `<li><strong>Selected Version:</strong> v${escapeHtml(displayVersion)}</li>`;
     html += `<li><strong>Latest Version:</strong> v${escapeHtml(pkg.latest_version)}</li>`;
     html += `<li><strong>Total Versions:</strong> ${pkg.versions.length}</li>`;
     if (pkg.license) {
@@ -182,17 +183,21 @@ function selectVersion(version) {
     const newUrl = `${window.location.pathname}?pkg=${encodeURIComponent(packageName)}&version=${encodeURIComponent(version)}`;
     window.history.pushState({}, '', newUrl);
     
-    // Update the displayed version
+    // Update the displayed version in header
     document.getElementById('packageVersion').textContent = `v${version}`;
+    
+    // Update package contents section with new version
+    renderPackageContents(currentPackageData, version);
     
     // Update active version in sidebar
     document.querySelectorAll('.version-item').forEach(item => {
         item.classList.remove('version-active');
+        const itemVersion = item.querySelector('.version-number').textContent.replace('v', '');
+        if (itemVersion === version) {
+            item.classList.add('version-active');
+        }
     });
-    event.target.closest('.version-item').classList.add('version-active');
     
-    // In a real implementation, you would fetch version-specific data here
-    // For now, we just update the UI to show the selected version
     console.log(`Switched to version ${version}`);
 }
 

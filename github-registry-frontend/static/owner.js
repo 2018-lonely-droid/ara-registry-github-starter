@@ -110,9 +110,15 @@ function createPackageCard(pkg) {
 function showEmptyState() {
     const packagesGrid = document.getElementById('packagesGrid');
     const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
     
+    loadingState.style.display = 'none';
     packagesGrid.style.display = 'none';
     emptyState.style.display = 'block';
+    
+    // Update header with owner name even if no packages
+    document.getElementById('ownerName').textContent = ownerName;
+    document.getElementById('ownerStats').textContent = 'No packages found';
 }
 
 // Utility: Format date

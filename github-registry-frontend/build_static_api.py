@@ -42,10 +42,21 @@ def main():
         json.dump(stats, f, indent=2)
 
     # Generate packages list
+    packages_with_owner = []
+    for pkg in index:
+        pkg_copy = pkg.copy()
+        namespace = pkg_copy.get('namespace')
+        name = pkg_copy.get('name')
+        pkg_key = f'{namespace}/{name}'
+        owner = ownership.get('packages', {}).get(pkg_key)
+        if owner:
+            pkg_copy['owner'] = owner
+        packages_with_owner.append(pkg_copy)
+    
     packages_data = {
-        'packages': index,
-        'total': len(index),
-        'limit': len(index),
+        'packages': packages_with_owner,
+        'total': len(packages_with_owner),
+        'limit': len(packages_with_owner),
         'offset': 0,
     }
 
