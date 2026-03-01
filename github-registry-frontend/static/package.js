@@ -1,5 +1,5 @@
 // API base URL
-const API_BASE = '/api';
+const API_BASE = 'api';
 
 // Get package from URL
 const urlParams = new URLSearchParams(window.location.search);

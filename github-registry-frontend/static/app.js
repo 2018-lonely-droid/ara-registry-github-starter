@@ -1,5 +1,5 @@
 // API base URL
-const API_BASE = '/api';
+const API_BASE = 'api';
 
 // State
 let allPackages = [];
@@ -290,7 +290,7 @@ function hideSuggestions() {
 
 // Go to package detail
 function goToPackage(fullName) {
-    window.location.href = `/package.html?pkg=${encodeURIComponent(fullName)}`;
+    window.location.href = `package.html?pkg=${encodeURIComponent(fullName)}`;
 }
 
 // Select tag suggestion
@@ -465,7 +465,7 @@ function createPackageCard(pkg) {
     const moreTags = moreTagsCount > 0 ? `<span class="tag">+${moreTagsCount} more</span>` : '';
     
     return `
-        <a href="/package.html?pkg=${encodeURIComponent(fullName)}" class="package-card">
+        <a href="package.html?pkg=${encodeURIComponent(fullName)}" class="package-card">
             <div class="package-card-header">
                 <div>
                     <div class="package-name">${escapeHtml(fullName)}</div>
