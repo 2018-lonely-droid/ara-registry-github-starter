@@ -102,6 +102,7 @@ jobs:
       - name: Process action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_MANIFEST_JSON: ${{ github.event.inputs.manifest_json }}
           INPUT_PAYLOAD: ${{ github.event.inputs.payload }}
           INPUT_PAYLOAD_1: ${{ github.event.inputs.payload_1 }}
           INPUT_PAYLOAD_2: ${{ github.event.inputs.payload_2 }}
@@ -270,8 +271,11 @@ jobs:
                   with open(archive_path, "rb") as f:
                       tar_data = dctx.decompress(f.read())
                   
-                  # Parse manifest
-                  manifest = json.loads("${{ github.event.inputs.manifest_json }}")
+                  # Parse manifest from workflow_dispatch input (passed via env)
+                  manifest_json = os.environ.get("INPUT_MANIFEST_JSON", "")
+                  if not manifest_json:
+                      raise ValueError("manifest_json input is missing or empty")
+                  manifest = json.loads(manifest_json)
                   
                   # Create release
                   tag = f"ara/{namespace}/{name}/v{version}"
