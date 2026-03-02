@@ -36,69 +36,9 @@
                        target="_blank">View Full Documentation on GitHub</a>
                 </div>
                 
-                <div class="docs-sections">
-                    <div class="docs-section">
-                        <h2>Quick Start</h2>
-                        <p>Get started with the ARA Registry in minutes.</p>
-                        
-                        <h3>Install the CLI</h3>
-                        <pre><code># Using uv (recommended)
-uv tool install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl
-
-# Using pipx
-pipx install https://github.com/2018-lonely-droid/ara-registry-github-starter/releases/download/v0.0.1/ara_github-0.0.1-py3-none-any.whl</code></pre>
-                        
-                        <h3>Configure Environment</h3>
-                        <pre><code>export GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter
-export GITHUB_TOKEN=ghp_your_token_here  # Only needed for publishing</code></pre>
-                        
-                        <h3>Basic Commands</h3>
-                        <pre><code># Search packages
-ara search
-
-# Install a package
-ara install namespace/package-name
-
-# Publish your package (requires token)
-ara publish</code></pre>
-                    </div>
-                    
-                    <div class="docs-section">
-                        <h2>Package Types</h2>
-                        <ul>
-                            <li><strong>kiro-agent</strong> - Kiro custom agent configurations</li>
-                            <li><strong>mcp-server</strong> - Model Context Protocol servers</li>
-                            <li><strong>context</strong> - Knowledge files and prompt templates</li>
-                            <li><strong>skill</strong> - Procedural knowledge via SKILL.md</li>
-                            <li><strong>kiro-powers</strong> - MCP tools with steering files</li>
-                            <li><strong>kiro-steering</strong> - Persistent project knowledge</li>
-                            <li><strong>agents-md</strong> - AGENTS.md format packages</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="docs-section">
-                        <h2>Publishing Packages</h2>
-                        <p>Create a package with an <code>ara.json</code> manifest:</p>
-                        <pre><code>{
-  "name": "namespace/package-name",
-  "version": "1.0.0",
-  "description": "Package description",
-  "author": "you@example.com",
-  "tags": ["tag1", "tag2"],
-  "type": "kiro-agent"
-}</code></pre>
-                        <p>Then publish:</p>
-                        <pre><code>ara publish</code></pre>
-                    </div>
-                    
-                    <div class="docs-section">
-                        <h2>Resources</h2>
-                        <ul>
-                            <li><a href="https://github.com/2018-lonely-droid/ara-registry-github-starter/blob/main/github-registry/README.md" target="_blank">Full Documentation</a></li>
-                            <li><a href="https://github.com/2018-lonely-droid/ara-registry-github-starter/blob/main/ara-json.md" target="_blank">ara.json Specification</a></li>
-                            <li><a href="https://github.com/2018-lonely-droid/ara-registry-github-starter" target="_blank">GitHub Repository</a></li>
-                        </ul>
-                    </div>
+                <!-- README content rendered at build time and loaded from docs-readme.md -->
+                <div id="docsMarkdown" class="docs-sections">
+                    <!-- Filled by docs.js using the copied README -->
                 </div>
             </div>
         </div>
@@ -110,5 +50,9 @@ ara publish</code></pre>
             <p>&copy; 2026 ARA Registry. Open source under Apache-2.0 license.</p>
         </div>
     </footer>
+
+    <!-- Markdown renderer and docs loader -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="docs.js?v=1"></script>
 </body>
 </html>
