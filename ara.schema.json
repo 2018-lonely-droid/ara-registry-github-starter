@@ -89,7 +89,33 @@
         "type": "string",
         "description": "Version constraint following semantic versioning (e.g., '^1.0.0', '>=2.0.0')"
       },
-      "description": "Package dependencies with version constraints. Keys are package names in namespace/package-name format."
+      "description": "Internal ARA package dependencies with version constraints. Keys are package names in namespace/package-name format."
+    },
+    "externalDependencies": {
+      "type": "array",
+      "description": "External AI ability dependencies that clients should fetch from approved external registries (for example anthropic/skills).",
+      "items": {
+        "type": "object",
+        "required": ["registry", "name"],
+        "properties": {
+          "registry": {
+            "type": "string",
+            "description": "External registry identifier, such as 'anthropic/skills'."
+          },
+          "name": {
+            "type": "string",
+            "description": "Ability or package name within the external registry."
+          },
+          "version": {
+            "type": "string",
+            "description": "Optional version or revision identifier for the external ability."
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path under the installed ARA package where this external ability should be placed."
+          }
+        }
+      }
     },
     "sources": {
       "type": "array",

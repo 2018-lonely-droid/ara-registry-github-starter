@@ -70,6 +70,7 @@ class ARAManifest(BaseModel):
     homepage: Optional[AnyUrl] = None
     repository: Optional[AnyUrl] = None
     dependencies: Optional[dict[str, str]] = None
+    externalDependencies: Optional[list[dict]] = None
     sources: Optional[list[PackageSource]] = None
 
     model_config = {"populate_by_name": True}

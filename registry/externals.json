@@ -1,0 +1,9 @@
+{
+  "anthropic/skills": {
+    "type": "anthropic_skills_github",
+    "repo": "anthropics/skills",
+    "branch": "main",
+    "description": "Anthropic open skills registry"
+  }
+}
+

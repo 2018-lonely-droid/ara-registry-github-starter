@@ -22,6 +22,7 @@ See also:
   - [homepage](#homepage)
   - [repository](#repository)
   - [dependencies](#dependencies)
+  - [externalDependencies](#externaldependencies)
   - [sources](#sources)
 - [Package Types](#package-types)
 - [Complete Example](#complete-example)
@@ -280,6 +281,45 @@ Clients implementing dependency resolution should:
 2. Resolve the dependency graph before installation
 3. Detect and report circular dependencies
 4. Support lock files for reproducible installs
+
+### externalDependencies
+
+External AI ability dependencies that should be fetched from approved external registries (for example the Anthropic skills registry).
+
+| Property | Value |
+|----------|-------|
+| Type | `array` of objects |
+| Applies to | All package types |
+
+Each entry describes one external ability:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `registry` | Yes | External registry identifier (e.g., `anthropic/skills`) |
+| `name` | Yes | Ability or package name within the external registry |
+| `version` | No | Optional version or revision identifier |
+| `path` | No | Relative path under the installed package where the ability should be placed |
+
+```json
+{
+  "externalDependencies": [
+    {
+      "registry": "anthropic/skills",
+      "name": "browser-use",
+      "version": "1.0.0",
+      "path": "skills/anthropic/browser-use"
+    }
+  ]
+}
+```
+
+#### Implementation Notes
+
+Clients implementing external dependency handling should:
+
+1. Restrict resolution to an administrator-configured allowlist of external registries
+2. Resolve and download external abilities during installation of the parent ARA package
+3. Place downloaded abilities at the configured `path` (or a sensible default convention when omitted)
 
 ### sources
 

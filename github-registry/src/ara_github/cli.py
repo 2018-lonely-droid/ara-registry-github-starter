@@ -13,7 +13,7 @@ import click
 import zstandard as zstd
 from pydantic import BaseModel, EmailStr, Field, ValidationError
 
-from . import client, index
+from . import client, index, external
 
 
 class AraManifest(BaseModel):
@@ -38,6 +38,7 @@ class AraManifest(BaseModel):
     homepage: Optional[str] = None
     repository: Optional[str] = None
     dependencies: Optional[dict[str, str]] = None
+    externalDependencies: Optional[list[dict]] = None
     sources: Optional[list[dict]] = None
 
 
@@ -268,9 +269,9 @@ def install(package: str, version: Optional[str], output: str):
     if "/" not in package:
         click.echo("Error: Package must be in format: namespace/name", err=True)
         sys.exit(1)
-    
+
     namespace, name = package.split("/", 1)
-    
+
     # Resolve version
     if not version:
         idx = index.fetch_index()
@@ -278,27 +279,45 @@ def install(package: str, version: Optional[str], output: str):
             if pkg.get("namespace") == namespace and pkg.get("name") == name:
                 version = pkg.get("latest_version")
                 break
-        
+
         if not version:
             click.echo(f"Error: Package {package} not found", err=True)
             sys.exit(1)
-    
+
     click.echo(f"Installing {namespace}/{name}@{version}...")
-    
+
     # Download archive
     with tempfile.NamedTemporaryFile(suffix=".tar.zst", delete=False) as tmp:
         archive_path = Path(tmp.name)
-    
+
     try:
         client.download_archive(namespace, name, version, archive_path)
-        
+
         # Extract
         output_dir = Path(output).resolve()
         output_dir.mkdir(parents=True, exist_ok=True)
         _safe_extract(archive_path, output_dir)
-        
+
+        # After extracting, look for externalDependencies in the ara.json manifest
+        manifest_path = output_dir / "ara.json"
+        if manifest_path.exists():
+            try:
+                with open(manifest_path) as f:
+                    manifest_data = json.load(f)
+            except json.JSONDecodeError:
+                manifest_data = {}
+
+            external_deps = manifest_data.get("externalDependencies") or []
+            if external_deps:
+                click.echo("Resolving external dependencies...")
+                for dep in external_deps:
+                    try:
+                        external.resolve_and_install_external_dependency(dep, output_dir)
+                    except Exception as e:
+                        click.echo(f"Warning: Failed to install external dependency {dep!r}: {e}", err=True)
+
         click.echo(f"Installed to {output_dir}")
-    
+
     except FileNotFoundError as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)

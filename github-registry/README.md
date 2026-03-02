@@ -281,6 +281,59 @@ ara install acme/weather-agent -v 1.0.0
 ara install acme/weather-agent -o /tmp/packages
 ```
 
+### External AI Ability Dependencies (Anthropic Skills)
+
+The CLI understands an optional `externalDependencies` field in `ara.json`. This lets you declare external AI abilities (for example from the Anthropic skills registry) that should be fetched when someone installs your ARA package.
+
+Admins configure which external registries are allowed in `registry/externals.json`. This starter registry ships with `anthropic/skills` preconfigured:
+
+```json
+{
+  "anthropic/skills": {
+    "type": "anthropic_skills_github",
+    "repo": "anthropics/skills",
+    "branch": "main",
+    "description": "Anthropic open skills registry"
+  }
+}
+```
+
+To reference an Anthropic skill from your package, add an `externalDependencies` array to your `ara.json`:
+
+```json
+{
+  "name": "myteam/my-anthropic-agent",
+  "version": "1.0.0",
+  "description": "Agent that uses Anthropic skills",
+  "author": "you@example.com",
+  "tags": ["demo", "anthropic", "skills"],
+  "type": "kiro-agent",
+  "files": ["prompts/"],
+  "externalDependencies": [
+    {
+      "registry": "anthropic/skills",
+      "name": "browser-use",
+      "path": "skills/anthropic/browser-use"
+    }
+  ]
+}
+```
+
+When a user runs:
+
+```bash
+ara install myteam/my-anthropic-agent -o ./installed
+```
+
+the CLI will:
+
+1. Install the ARA package into `./installed` as usual  
+2. Read `./installed/ara.json`  
+3. For each entry in `externalDependencies`, download the external ability (for Anthropic skills, it fetches the `SKILL.md` and any other files in that skill directory from the `anthropics/skills` GitHub repo)  
+4. Write the external ability under the requested `path` inside the install directory (or a default `external/...` convention when `path` is omitted)
+
+If an external registry or ability is not in the admin allowlist, the CLI skips it and continues installing the core ARA package.
+
 ### ara info
 
 Show package information.
