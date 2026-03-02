@@ -514,6 +514,55 @@ rm -rf /tmp/test-agent /tmp/install
 2. Try to publish the same version again
 3. Should fail with "Version already exists" error
 
+### End-to-End Test: External Anthropic Skills Dependency
+
+Use this flow to verify that external AI abilities from the Anthropic skills registry are being pulled correctly via `externalDependencies`.
+
+```bash
+# 1. Create a test package that depends on anthropic/skills: skills/docx
+mkdir -p /tmp/ara-ext-test/prompts
+cd /tmp/ara-ext-test
+
+cat > ara.json << 'EOF'
+{
+  "$schema": "https://raw.githubusercontent.com/aws/ara/refs/heads/main/ara.schema.json",
+  "name": "test/anthropic-ext-docx",
+  "version": "0.1.0",
+  "description": "Test ARA package that uses the Anthropic docx skill via externalDependencies",
+  "author": "you@example.com",
+  "tags": ["test", "anthropic", "skills"],
+  "type": "kiro-agent",
+  "files": ["prompts/"],
+  "externalDependencies": [
+    {
+      "registry": "anthropic/skills",
+      "name": "skills/docx",
+      "path": "skills/anthropic/docx"
+    }
+  ]
+}
+EOF
+
+echo "# Anthropic external test" > prompts/system.md
+
+# 2. Publish to this GitHub-backed registry
+export GITHUB_REPO=2018-lonely-droid/ara-registry-github-starter
+export GITHUB_TOKEN=ghp_your_token_here   # token with Issues: write
+
+ara publish
+
+# 3. Install in a clean location and verify external skill files
+mkdir -p /tmp/ara-ext-install
+cd /tmp/ara-ext-install
+
+ara install test/anthropic-ext-docx -o .
+
+ls skills/anthropic/docx
+# Expect: SKILL.md (and other files) copied from anthropics/skills: skills/docx/
+```
+
+If `skills/anthropic/docx/SKILL.md` matches the content from the Anthropic skills repository, the external registry dependency path is working end-to-end.
+
 ## Troubleshooting
 
 ### 401 Unauthorized
