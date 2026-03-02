@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('Markdown parser failed to load');
         }
         
-        // Fetch the README from GitHub
-        const response = await fetch('https://raw.githubusercontent.com/2018-lonely-droid/ara-registry-github-starter/main/github-registry/README.md');
+        // Fetch the README that was bundled into the static site during build.
+        // This avoids relying on external caching behavior from raw.githubusercontent.com.
+        const response = await fetch('docs-readme.md');
         
         if (!response.ok) {
             throw new Error(`Failed to load documentation: ${response.status}`);

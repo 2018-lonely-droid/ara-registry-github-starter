@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'github-registry-frontend/**'
+      - 'github-registry/**'
       - 'registry/**'
       - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
@@ -37,6 +38,10 @@ jobs:
         run: |
           cd github-registry-frontend
           pip install -r requirements.txt
+      
+      - name: Copy registry README into static docs
+        run: |
+          cp github-registry/README.md github-registry-frontend/static/docs-readme.md
       
       - name: Generate static API data
         run: |
