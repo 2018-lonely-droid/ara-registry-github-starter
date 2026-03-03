@@ -1,10 +1,12 @@
 {
   "namespaces": {
     "myname": "2018",
-    "lnlydrd": "2018-lonely-droid"
+    "lnlydrd": "2018-lonely-droid",
+    "test": "2018-lonely-droid"
   },
   "packages": {
     "myname/my-agent": "2018",
-    "lnlydrd/my-agent": "2018-lonely-droid"
+    "lnlydrd/my-agent": "2018-lonely-droid",
+    "test/anthropic-ext-docx": "2018-lonely-droid"
   }
 }
