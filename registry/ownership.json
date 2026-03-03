@@ -7,6 +7,7 @@
   "packages": {
     "myname/my-agent": "2018",
     "lnlydrd/my-agent": "2018-lonely-droid",
-    "test/anthropic-ext-docx": "2018-lonely-droid"
+    "test/anthropic-ext-docx": "2018-lonely-droid",
+    "test/my-agent": "2018-lonely-droid"
   }
 }
