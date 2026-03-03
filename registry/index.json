@@ -32,5 +32,23 @@
     "total_downloads": 0,
     "created_at": "2026-02-26T05:24:15.339786+00:00",
     "updated_at": "2026-02-26T05:32:29.680044+00:00"
+  },
+  {
+    "namespace": "test",
+    "name": "anthropic-ext-docx",
+    "description": "Test ARA package that uses the Anthropic docx skill via externalDependencies",
+    "type": "kiro-agent",
+    "latest_version": "0.1.0",
+    "versions": [
+      "0.1.0"
+    ],
+    "tags": [
+      "test",
+      "anthropic",
+      "skills"
+    ],
+    "total_downloads": 0,
+    "created_at": "2026-03-03T00:22:33.619647+00:00",
+    "updated_at": "2026-03-03T00:22:33.619647+00:00"
   }
 ]
